@@ -37,7 +37,7 @@ class MiniZincData:
         file.close()
 
     def show(self):
-        """Shows content of the MiniZinc data file"""
+        """Shows content of the MiniZinc input_data file"""
 
         file = open(self.file_name, "r")
         print(file.read())

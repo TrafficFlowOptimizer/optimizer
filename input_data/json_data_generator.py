@@ -10,7 +10,7 @@ def update_json(json_path: str, name: str, value):
         json.dump(json_file, f, indent=0)
 
 
-def init_data(data_path: str = "../data/data_kijowska.json"):
+def init_data(data_path: str = "../input_data/data_kijowska.json"):
     update_json(data_path, "time_units_in_minute", 60)
     update_json(data_path, "number_of_time_units", 60)
     update_json(data_path, "number_of_lights", 12)
@@ -18,7 +18,7 @@ def init_data(data_path: str = "../data/data_kijowska.json"):
     update_json(data_path, "number_of_connections", 12)
 
 
-def lights_kijowska(data_path: str = "../data/data_kijowska.json"):
+def lights_kijowska(data_path: str = "../input_data/data_kijowska.json"):
     lights = []
     for i in range(4):
         lights.append("heavy")
@@ -27,7 +27,7 @@ def lights_kijowska(data_path: str = "../data/data_kijowska.json"):
     update_json(data_path, "lights", lights)
 
 
-def roads_connections_kijowska(data_path: str = "../data/data_kijowska.json"):
+def roads_connections_kijowska(data_path: str = "../input_data/data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
     number_of_lights = data["number_of_lights"]
@@ -60,7 +60,7 @@ def roads_connections_kijowska(data_path: str = "../data/data_kijowska.json"):
     update_json(data_path, "roads_connections", roads_connections)
 
 
-def roads_conflicts_kijowska(data_path: str = "../data/data_kijowska.json"):
+def roads_conflicts_kijowska(data_path: str = "../input_data/data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
     number_of_lights = data["number_of_lights"]
@@ -111,7 +111,7 @@ def roads_conflicts_kijowska(data_path: str = "../data/data_kijowska.json"):
     update_json(data_path, "light_conflicts_no", len(lights_light_conflicts))
 
 
-def car_flow_kijowska(data_path: str = "../data/data_kijowska.json"):
+def car_flow_kijowska(data_path: str = "../input_data/data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
     number_of_connections = data["number_of_connections"]

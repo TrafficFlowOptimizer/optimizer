@@ -15,9 +15,7 @@ class Optimizer:
         fill_data(input_data_path, self.model_data, scaling)
 
         self.model_basic = MiniZincModel("../minizinc/models/optimizer.mzn",
-                                         "../minizinc/data/data.dzn")
-        self.model_add_green_arrows = MiniZincModel("../minizinc/models/fill_green_arrows.mzn",
-                                                    "../minizinc/data/data.dzn")
+                                         "../minizinc/input_data/input_data.dzn")
 
         self.solver_output = "../minizinc/output/output.txt"
 
@@ -67,7 +65,7 @@ class Optimizer:
 
 
 def test_times(scaling: int = 2, time_limit=None):
-    optimizer = Optimizer("../data/data_kijowska.json", scaling)
+    optimizer = Optimizer("../input_data/data_kijowska.json", scaling)
     timer = time.time()
     optimizer.solve(time_limit)
     timer = time.time() - timer
