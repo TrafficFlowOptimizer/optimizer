@@ -2,7 +2,8 @@ import json
 import os
 import random
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -25,16 +26,19 @@ def post_new_calculation(request: dict):
     with open(f'../minizinc/output/{idx}.txt', 'w') as f:
         f.write("*This is some default output*")
 
-    return {"success": True, "calculation idx": idx}
+    return JSONResponse(status_code=status.HTTP_201_CREATED,
+                        content={"calculation idx": idx})
 
 
 @app.get('/get/{item_id}')
 def get_calculation_results(item_id: int):
     try:
         with open(f'../minizinc/output/{item_id}.txt') as f:
-            return {"success": True, "calculation results": f.read()}
+            return JSONResponse(status_code=status.HTTP_200_OK,
+                                content={"calculation results": f.read()})
     except FileNotFoundError:
-        return {"success": False, "calculation results": "Invalid idx!"}
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content={"calculation results": "Invalid idx!"})
 
 
 @app.delete('/delete/{item_id}')
@@ -51,9 +55,12 @@ def delete_calculation(item_id: int):
         file_not_exists = True
 
     if file_not_exists:
-        return {"success": False, "deletion results": "Can't delete. File might not exist!"}
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content={"calculation results": "Can't delete. File might not exist!"})
 
-    return {"success": True, "deletion results": "Done!"}
+    return JSONResponse(status_code=status.HTTP_200_OK,
+                        content={"deletion results": "Done!"})
+
 
 @app.delete('/delete')
 def delete_all():
@@ -63,5 +70,5 @@ def delete_all():
         if os.path.exists(f'../input_data/{item_id}.json'):
             os.remove(f'../input_data/{item_id}.json')
 
-
-    return {"success": True, "deletion results": "Done!"}
+    return JSONResponse(status_code=status.HTTP_200_OK,
+                        content={"deletion results": "Done!"})
