@@ -15,7 +15,7 @@ class Optimizer:
         fill_data(input_data_path, self.model_data, scaling)
 
         self.model_basic = MiniZincModel("../minizinc/models/optimizer.mzn",
-                                         "../minizinc/input_data/input_data.dzn")
+                                         "../minizinc/data/data.dzn")
 
         self.solver_output = "../minizinc/output/output.txt"
 
@@ -77,6 +77,6 @@ def test_times(scaling: int = 2, time_limit=None):
         print("best solution found.")
 
 
-test_times(3)  # 58.182
-test_times(2)  # 404.534
-test_times(1)  # 7271.367
+test_times(3, 30)  # 58.182
+test_times(2, 30)  # 404.534
+test_times(1, 30)  # 7271.367
