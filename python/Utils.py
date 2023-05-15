@@ -20,6 +20,7 @@ def get_output_lights(file_path: str):
     file.close()
     return output
 
+
 def add_variable(file_name: str, variable_name: str, variable_value, variable_type: str):
     """Adds variable\n
     It has to be one of { int, array, array2d, set of int range, set of int}"""
@@ -38,9 +39,9 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
             value += "\n" + inline
         value = value[:-3 - inline_size] + " |]"
         file.write(str(variable_name) + " = " + value + ";\n")
-    elif variable_type=="set of int range":
+    elif variable_type == "set of int range":
         file.write(str(variable_name) + " = 1.." + str(variable_value) + ";\n")
-    elif variable_type=="set of int":
+    elif variable_type == "set of int":
         value = "{"
         for v in variable_value:
             value += str(v) + ", "
@@ -51,6 +52,7 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
     else:
         raise ValueError("Invalid \"variable_type\" for " + str(variable_name) + ": " + str(variable_type))
     file.close()
+
 
 def fill_data(input_data_path: str, data_path: str, scaling: int):
     """Fills MiniZinc data file with values from given json file"""

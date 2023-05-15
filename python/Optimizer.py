@@ -1,5 +1,3 @@
-import asyncio
-import time
 from datetime import timedelta
 
 from MiniZincModel import MiniZincModel
@@ -13,7 +11,6 @@ class Optimizer:
         self.model_basic = MiniZincModel("../minizinc/models/optimizer.mzn")
         self.solver_output = None
         self.input_data_path = None
-
 
     def solve(self, idx: int, scaling: int = 3, seconds_limit=60):
         """Solves problem and saves output in file on given path"""

@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from minizinc import Instance, Model, Solver
-import asyncio
+
 
 class MiniZincModel:
     def __init__(self, path: str):
@@ -13,13 +13,10 @@ class MiniZincModel:
         """Solves problem with given solver and saves output to the given file"""
         model = Model(self.file_name)
         coin_or = Solver.lookup(solver)
-        # instance.add_file(self.data_file_name)
         model.add_file(data_path)
         instance = Instance(coin_or, model)
 
         result = instance.solve(timeout=time_limit, optimisation_level=2)
-        print("printing")
-        print(result)
         with open(output_name, 'w', encoding="utf-8") as output_txt:
             output_txt.write(str(result))
 
