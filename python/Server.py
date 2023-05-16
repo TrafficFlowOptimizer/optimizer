@@ -1,7 +1,8 @@
 import json
 import os
-import random
 import socketserver
+from glob import glob
+from uuid import uuid4
 
 from python.Optimizer import Optimizer
 
@@ -18,15 +19,20 @@ def clear(idx: int):
 
 
 def clear_all():
-    for idx in range(1000):
-        clear(idx)
+    fileList = glob('../minizinc/output/[0-9]*.txt')
+    fileList += glob('../minizinc/data/[0-9]*.dzn')
+    fileList += glob('../input_data/[0-9]*.json')
+    print(fileList)
+    for filePath in fileList:
+        if os.path.exists(filePath):
+            os.remove(filePath)
 
 
 def prepare_data(configuration: dict):
     conf_string = json.dumps(configuration)
-    idx = random.randint(0, 999)
+    idx = uuid4().int >> (128 - 24)
     while os.path.exists(f'../input_data/{idx}.json'):
-        idx = random.randint(0, 999)
+        idx = uuid4().int >> (128 - 24)
     with open(f'../input_data/{idx}.json', 'w') as f:
         f.write(conf_string)
     return idx
