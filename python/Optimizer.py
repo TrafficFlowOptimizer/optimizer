@@ -23,6 +23,23 @@ class Optimizer:
         else:
             self.model_basic.solve(f'../minizinc/data/{idx}.dzn', f'../minizinc/output/{idx}.txt', "cbc",
                                    timedelta(seconds=seconds_limit))
+        lights_IDs = get_value_from_input(f'../input_data/{idx}.json', "lights_IDs")
+        file = open(f'../minizinc/output/{idx}.txt', "r+")
+        content = file.readlines()
+        extended_content = ""
+        for i, line in enumerate(content[:-2]):
+            extended_content += str(lights_IDs[i]) + " "
+            for c in line:
+                if c != " ":
+                    if c == "\n":
+                        extended_content += "\n"
+                    else:
+                        extended_content += (c + " ") * scaling
+        extended_content += content[-2] + content[-1]
+        file.close()
+        file = open(f'../minizinc/output/{idx}.txt', "w")
+        file.write(extended_content)
+        file.close()
 
     def show_data(self, idx: int):
         """Shows content of the MiniZinc data file"""

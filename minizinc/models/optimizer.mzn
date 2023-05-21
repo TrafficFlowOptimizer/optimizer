@@ -54,7 +54,7 @@ constraint forall(L in Light)(flow_normalized[L]>=minimum_flow);
 
 solve maximize minimum_flow;
 
-output [show(T) ++ " " ++ join(" ", [show(light_states[L, T]) | L in Light]) ++ "\n" | T in Time]
+output [join(" ", [show(light_states[L, T]) | T in Time]) ++ "\n" | L in Light]
 ++ [join(" ", [show(flow_normalized[L])| L in Light]) ++ "\n"]
 ++ [show(minimum_flow)]
 ;

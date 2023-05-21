@@ -5,6 +5,7 @@ from glob import glob
 from uuid import uuid4
 
 from python.Optimizer import Optimizer
+from python.Utils import prepare_output_for_backend
 
 HOST, PORT = "localhost", 8000
 
@@ -40,7 +41,8 @@ def prepare_data(configuration: dict):
 
 def solve(idx: int, time: int):
     server.optimizer.solve(idx, seconds_limit=time)
-    server.optimizer.show_refactored_output(idx)
+    # server.optimizer.show_raw_output(idx)
+    # server.optimizer.show_refactored_output(idx)
 
 
 class SingleTCPHandler(socketserver.BaseRequestHandler):
@@ -55,8 +57,13 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         idx = prepare_data(configuration)
         solve(idx, time)
 
-        self.request.send(bytes(json.dumps({"status": "success!",
-                                            "lights": open(f'../minizinc/output/{idx}.txt', "r").read()}), 'UTF-8'))
+        data = prepare_output_for_backend(f'../minizinc/output/{idx}.txt')
+        for dict in data["results"]:
+            for key, value in dict.items():
+                print(key, ':', value)
+            print()
+
+        self.request.send(bytes(json.dumps(data), 'UTF-8'))
         clear(idx)
         self.request.close()
 
@@ -69,6 +76,6 @@ class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.optimizer = Optimizer()
 
 
-# clear()
+# clear_all()
 server = SimpleServer((HOST, PORT), SingleTCPHandler)
 server.serve_forever()

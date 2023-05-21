@@ -1,6 +1,23 @@
 import json
 
 
+def prepare_output_for_backend(file_path: str):
+    f = open(file_path, "r")
+    content = f.readlines()
+
+    data = {}
+    results = []
+    data["status"] = "success!"
+    flows = list(map(float, content[-2].split(" ")))
+    for i, line in enumerate(content[:-2]):
+        int_array = list(map(int, line[:-2].split(" ")))
+        light = {"lightId": int_array[0], "sequence": int_array[1:], "flow": flows[i]}
+        results.append(light)
+    data["results"] = results
+    f.close()
+    return data
+
+
 def get_value_from_input(input_data_path: str, value_name: str):
     """Returns given data from input json file"""
     f = open(input_data_path)
