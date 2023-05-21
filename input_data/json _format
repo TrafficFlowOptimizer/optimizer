@@ -106,7 +106,7 @@
 "light",
 "light"
 ],
-"lights_heavy_conflicts": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
+"lights_heavy_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
 [                             silnie (nie mogą być na raz zielone) [idx_światła_1, idx_światła_2]
 1,                            INDEKSOWANIE ZACZYNA SIE OD 1 (!!!!!!)
 4
@@ -204,8 +204,8 @@
 11
 ]
 ],
-"heavy_conflicts_no": 24, - długość powyższej tablicy
-"lights_light_conflicts": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
+"heavy_collisions_no": 24, - długość powyższej tablicy
+"lights_light_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
 [                             słabo (mogą być na raz zielone, ale mogą generować kolizje) [idx_światła_1, idx_światła_2]
 [                             INDEKSOWANIE ZACZYNA SIE OD 1 (!!!!!!)
 2,
@@ -224,7 +224,7 @@
 12
 ]
 ],
-"light_conflicts_no": 4, - długość powyższej tablicy
+"light_collisions_no": 4, - długość powyższej tablicy
 "car_flow_per_min": [ - tablica długości "number_of_connections", określa jak wiele pojazdów pojawia się na minute
 6,                      chcących jechać przez dane połączenie (jeśli '6' jest na pierwszym miejscu w tablicy
 11,                     to pierwsze połączenie z tablicy połączeń ma obłożenie 6 pojazdów/minute)

@@ -60,7 +60,7 @@ def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
     update_json(data_path, "roads_connections", roads_connections)
 
 
-def roads_conflicts_kijowska(data_path: str = "../data_kijowska.json"):
+def roads_collisions_kijowska(data_path: str = "../data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
     number_of_lights = data["number_of_lights"]
@@ -69,8 +69,8 @@ def roads_conflicts_kijowska(data_path: str = "../data_kijowska.json"):
     lights = data["lights"]
     f.close()
 
-    lights_heavy_conflicts = []
-    lights_light_conflicts = []
+    lights_heavy_collisions = []
+    lights_light_collisions = []
     for light_1 in range(number_of_lights):
         for light_2 in range(light_1, number_of_lights):
             if light_1 % 3 == 0:
@@ -81,9 +81,9 @@ def roads_conflicts_kijowska(data_path: str = "../data_kijowska.json"):
                         light_2 == (light_1 + 9) % number_of_lights or \
                         light_2 == (light_1 + 10) % number_of_lights:
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy':
-                        lights_heavy_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
             if light_1 % 3 == 1:
                 if light_2 == (light_1 + 2) % number_of_lights or \
                         light_2 == (light_1 + 3) % number_of_lights or \
@@ -94,21 +94,21 @@ def roads_conflicts_kijowska(data_path: str = "../data_kijowska.json"):
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy' or \
                             light_2 == (light_1 + 3) % number_of_lights or \
                             light_2 == (light_1 + 9) % number_of_lights:
-                        lights_heavy_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
             if light_1 % 3 == 2:
                 if light_2 == (light_1 + 4) % number_of_lights or \
                         light_2 == (light_1 + 8) % number_of_lights:
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy':
-                        lights_heavy_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_conflicts.append([light_1 + 1, light_2 + 1])
+                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
 
-    update_json(data_path, "lights_heavy_conflicts", lights_heavy_conflicts)
-    update_json(data_path, "heavy_conflicts_no", len(lights_heavy_conflicts))
-    update_json(data_path, "lights_light_conflicts", lights_light_conflicts)
-    update_json(data_path, "light_conflicts_no", len(lights_light_conflicts))
+    update_json(data_path, "lights_heavy_collisions", lights_heavy_collisions)
+    update_json(data_path, "heavy_collisions_no", len(lights_heavy_collisions))
+    update_json(data_path, "lights_light_collisions", lights_light_collisions)
+    update_json(data_path, "light_collisions_no", len(lights_light_collisions))
 
 
 def car_flow_kijowska(data_path: str = "../data_kijowska.json"):
@@ -132,5 +132,5 @@ def car_flow_kijowska(data_path: str = "../data_kijowska.json"):
 init_data()
 roads_connections_kijowska()
 lights_kijowska()
-roads_conflicts_kijowska()
+roads_collisions_kijowska()
 car_flow_kijowska()

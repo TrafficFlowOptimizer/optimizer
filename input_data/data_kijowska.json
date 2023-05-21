@@ -120,7 +120,7 @@
     "light",
     "light"
   ],
-  "lights_heavy_conflicts": [
+  "lights_heavy_collisions": [
     [
       1,
       4
@@ -218,8 +218,8 @@
       11
     ]
   ],
-  "heavy_conflicts_no": 24,
-  "lights_light_conflicts": [
+  "heavy_collisions_no": 24,
+  "lights_light_collisions": [
     [
       2,
       6
@@ -237,7 +237,7 @@
       12
     ]
   ],
-  "light_conflicts_no": 4,
+  "light_collisions_no": 4,
   "car_flow_per_min": [
     6,
     11,

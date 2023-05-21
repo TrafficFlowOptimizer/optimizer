@@ -4,20 +4,20 @@ int: number_of_time_units;
 int: number_of_lights;
 int: number_of_roads;
 int: number_of_connections;
-int: heavy_conflicts_no;
-int: light_conflicts_no;
+int: heavy_collisions_no;
+int: light_collisions_no;
 
 set of int: Light = 1..number_of_lights;
 set of int: Connection = 1..number_of_connections;
-set of int: Heavy_conflicts_no = 1..heavy_conflicts_no;
-set of int: Light_conflicts_no = 1..light_conflicts_no;
+set of int: Heavy_collisions_no = 1..heavy_collisions_no;
+set of int: Light_collisions_no = 1..light_collisions_no;
 
 set of int: Time = 1..number_of_time_units;
 set of float: Flow = 0.0..number_of_time_units;
 
 array[Connection, 1..4] of -1..infinity: roads_connections;
-array[Heavy_conflicts_no, 1..2] of Light: lights_heavy_conflicts;
-array[Light_conflicts_no, 1..2] of Light: lights_light_conflicts;
+array[Heavy_collisions_no, 1..2] of Light: lights_heavy_collisions;
+array[Light_collisions_no, 1..2] of Light: lights_light_collisions;
 array[Connection] of int: car_flow_per_min;
 
 % variables
@@ -45,7 +45,7 @@ constraint forall(L in Light, T in 1..number_of_time_units-1)(lights_change[L, T
 constraint forall(C in Connection where roads_connections[C, 4]!=-1, T in Time)
                               (light_states[roads_connections[C, 3], T] + light_states[roads_connections[C, 4], T]<2);
 % there are no colision on crossing with green light_states
-constraint forall(C in Heavy_conflicts_no, T in Time)(light_states[lights_heavy_conflicts[C, 1], T]+light_states[lights_heavy_conflicts[C, 2], T]<2);
+constraint forall(C in Heavy_collisions_no, T in Time)(light_states[lights_heavy_collisions[C, 1], T]+light_states[lights_heavy_collisions[C, 2], T]<2);
 % there is only one period of light_states on (green arrow ignored)
 constraint forall(L in Light)(count(T in 1..number_of_time_units-1)(lights_change[L, T]!=0)<=2);
 

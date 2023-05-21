@@ -85,10 +85,10 @@ def fill_data(input_data_path: str, data_path: str, scaling: int):
                      "number_of_connections": "int",
                      "car_flow_per_min": "array",
                      "roads_connections": "array2d",
-                     "lights_heavy_conflicts": "array2d",
-                     "heavy_conflicts_no": "int",
-                     "lights_light_conflicts": "array2d",
-                     "light_conflicts_no": "int"}
+                     "lights_heavy_collisions": "array2d",
+                     "heavy_collisions_no": "int",
+                     "lights_light_collisions": "array2d",
+                     "light_collisions_no": "int"}
 
         for key in variables.keys():
             if key in json_data:

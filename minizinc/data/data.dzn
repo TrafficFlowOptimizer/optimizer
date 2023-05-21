@@ -16,7 +16,7 @@ roads_connections = [| 2, 10, 1, -1,
                      | 11, 7, 10, -1, 
                      | 0, 3, 11, -1, 
                      | 0, 0, 11, 12 |];
-lights_heavy_conflicts = [| 1, 4, 
+lights_heavy_collisions = [| 1, 4,
                           | 1, 5, 
                           | 1, 8, 
                           | 1, 9, 
@@ -40,9 +40,9 @@ lights_heavy_conflicts = [| 1, 4,
                           | 7, 11, 
                           | 8, 10, 
                           | 8, 11 |];
-heavy_conflicts_no = 24;
-lights_light_conflicts = [| 2, 6, 
+heavy_collisions_no = 24;
+lights_light_collisions = [| 2, 6,
                           | 3, 11, 
                           | 5, 9, 
                           | 8, 12 |];
-light_conflicts_no = 4;
+light_collisions_no = 4;
