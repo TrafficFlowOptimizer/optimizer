@@ -3,11 +3,12 @@ import os
 import socketserver
 from glob import glob
 from uuid import uuid4
+from pprint import pprint 
 
-from python.Optimizer import Optimizer
-from python.Utils import prepare_output_for_backend
+from Optimizer import Optimizer
+from Utils import prepare_output_for_backend
 
-HOST, PORT = "localhost", 8000
+HOST, PORT = "localhost", 9091
 
 
 def clear(idx: int):
@@ -51,8 +52,9 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         load = json.loads(self.request.recv(4016).decode('utf-8'))
         time, configuration = load["time"], load["configuration"]
-        print("time:", time)
-        print("configuration:", configuration)
+        pprint(load)
+        # print("time:", time)
+        # print("configuration:", configuration)
 
         idx = prepare_data(configuration)
         solve(idx, time)
@@ -70,6 +72,7 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
 
 class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = allow_reuse_address = True
+    allow_reuse_address = True
 
     def __init__(self, server_address, RequestHandlerClass):
         socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
@@ -78,4 +81,8 @@ class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 # clear_all()
 server = SimpleServer((HOST, PORT), SingleTCPHandler)
-server.serve_forever()
+
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+    sys.exit(0)
