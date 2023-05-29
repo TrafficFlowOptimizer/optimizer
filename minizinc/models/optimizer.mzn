@@ -19,6 +19,7 @@ array[Connection, 1..4] of -1..infinity: roads_connections;
 array[Heavy_collisions_no, 1..2] of Light: lights_heavy_collisions;
 array[Light_collisions_no, 1..2] of Light: lights_light_collisions;
 array[Connection] of int: car_flow_per_min;
+array[Light] of Light: lights_IDs;
 
 % variables
 var Flow: minimum_flow;
@@ -54,7 +55,10 @@ constraint forall(L in Light)(flow_normalized[L]>=minimum_flow);
 
 solve maximize minimum_flow;
 
-output [join(" ", [show(light_states[L, T]) | T in Time]) ++ "\n" | L in Light]
-++ [join(" ", [show(flow_normalized[L])| L in Light]) ++ "\n"]
-++ [show(minimum_flow)]
+output 
+["{\"results\": ["] ++
+  ["{\"lightId\": " ++ show(lights_IDs[L]) ++ 
+  ",\n\"sequence\": [" ++ join(", ", [show(light_states[L, T]) | T in Time]) 
+  ++ "],\n\"flow\": " ++ show(flow_normalized[L]) ++ "}" ++ if L<number_of_lights then "," else "" endif ++ "\n" | L in Light] ++ ["],\n"] ++
+["\"minimum_flow\": " ++ show(minimum_flow) ++ "}"]
 ;

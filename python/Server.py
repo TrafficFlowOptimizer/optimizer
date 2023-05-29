@@ -3,18 +3,17 @@ import os
 import socketserver
 import sys
 from glob import glob
-from uuid import uuid4
 from pprint import pprint
+from uuid import uuid4
 
 from Optimizer import Optimizer
-from Utils import prepare_output_for_backend
 
 HOST, PORT = "localhost", 9091
 
 
 def clear(idx: int):
-    if os.path.exists(f'../minizinc/output/{idx}.txt'):
-        os.remove(f'../minizinc/output/{idx}.txt')
+    if os.path.exists(f'../minizinc/output/{idx}.*'):
+        os.remove(f'../minizinc/output/{idx}.*')
     if os.path.exists(f'../minizinc/data/{idx}.dzn'):
         os.remove(f'../minizinc/data/{idx}.dzn')
     if os.path.exists(f'../input_data/{idx}.json'):
@@ -22,7 +21,7 @@ def clear(idx: int):
 
 
 def clear_all():
-    fileList = glob('../minizinc/output/[0-9]*.txt')
+    fileList = glob('../minizinc/output/[0-9]*.*')
     fileList += glob('../minizinc/data/[0-9]*.dzn')
     fileList += glob('../input_data/[0-9]*.json')
     print(fileList)
@@ -60,11 +59,13 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         idx = prepare_data(configuration)
         solve(idx, time)
 
-        data = prepare_output_for_backend(f'../minizinc/output/{idx}.txt')
+        with open(f'../minizinc/output/{idx}.json', 'r+') as f:
+            data = json.load(f)
+
         for dict in data["results"]:
-            for key, value in dict.items():
-                print(key, ':', value)
-            print()
+            print("light id:", dict["lightId"], "; ", "flow:", dict["flow"])
+            print(dict["sequence"])
+            print("------------------")
 
         self.request.send(bytes(json.dumps(data), 'UTF-8'))
         clear(idx)

@@ -1,7 +1,7 @@
 import json
 import socket
 
-HOST, PORT = "localhost", 8000
+HOST, PORT = "localhost", 9091
 
 
 def send_request(path: str):
