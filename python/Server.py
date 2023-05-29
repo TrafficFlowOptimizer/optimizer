@@ -3,7 +3,7 @@ import os
 import socketserver
 from glob import glob
 from uuid import uuid4
-from pprint import pprint 
+from pprint import pprint
 
 from Optimizer import Optimizer
 from Utils import prepare_output_for_backend
