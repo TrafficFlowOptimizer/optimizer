@@ -20,15 +20,6 @@ class MiniZincModel:
         with open(output_name, 'w', encoding="utf-8") as output_txt:
             output_txt.write(str(result))
 
-        # task = asyncio.create_task(instance.solve_async(timeout=time_limit, optimisation_level=2))
-        # done, pending = await asyncio.wait([task], return_when=asyncio.FIRST_COMPLETED)
-        # for p in pending:
-        #     p.cancel()
-        # for t in done:
-        #     print(t.result())
-        #     with open(output_name, 'w', encoding="utf-8") as output_txt:
-        #         output_txt.write(str(t.result()))
-
     def show(self):
         """Shows content of the MiniZinc model"""
 

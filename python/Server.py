@@ -42,8 +42,6 @@ def prepare_data(configuration: dict):
 
 def solve(idx: int, time: int):
     server.optimizer.solve(idx, seconds_limit=time)
-    # server.optimizer.show_raw_output(idx)
-    # server.optimizer.show_refactored_output(idx)
 
 
 class SingleTCPHandler(socketserver.BaseRequestHandler):
@@ -53,8 +51,6 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         load = json.loads(self.request.recv(4016).decode('utf-8'))
         time, configuration = load["time"], load["configuration"]
         pprint(load)
-        # print("time:", time)
-        # print("configuration:", configuration)
 
         idx = prepare_data(configuration)
         solve(idx, time)
@@ -81,7 +77,7 @@ class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.optimizer = Optimizer()
 
 
-# clear_all()
+clear_all()
 server = SimpleServer((HOST, PORT), SingleTCPHandler)
 
 try:

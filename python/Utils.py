@@ -85,3 +85,41 @@ def fill_data(input_data_path: str, data_path: str, scaling: int):
         f.close()
     except FileNotFoundError:
         print(f'{input_data_path} not found!')
+
+
+def show_data(idx: int):
+    """Shows content of the MiniZinc data file"""
+    file = open(f'../minizinc/data/{idx}.dzn', "r")
+    print(file.read())
+    file.close()
+
+
+def show_raw_output(idx: int):
+    """Shows solver's raw output"""
+    file = open(f'../minizinc/output/{idx}.txt', "r")
+    print(file.read())
+    file.close()
+
+
+def show_refactored_output(idx: int, scaling: int = 3):
+    """Shows refactored MinZinc output so it is easier to read"""
+    output = get_output_lights(f'../minizinc/output/{idx}.txt')
+    lights_types = get_value_from_input(f'../input_data/{idx}.json', "lights_type")
+    car_flow_per_min = get_value_from_input(f'../input_data/{idx}.json', "car_flow_per_min")
+
+    for light in range(1, len(output[0])):
+        print("ID: ", '{:0>2}'.format(light - 1), ";", lights_types[light - 1], sep="", end=";")
+        for time in range(len(output) - 2):
+            if output[time][light] == "1":
+                # if (light - 1) % 3 == 2 and output[time][light - 1] != "1":
+                #     print(">" * scaling, end="")
+                # else:
+                print("O" * scaling, end="")
+            elif output[time][light] == "0":
+                print("_" * scaling, end="")
+            else:
+                print("*" * scaling, end="")
+        print(end=";")
+        print("car flow: ", '{:0>2}'.format(car_flow_per_min[light - 1]), "/min", sep="", end="; ")
+        print("ratio: ", '{:.2f}'.format(float(output[-2][light - 1]) * scaling), sep="")
+    print("Minimum flow: ", '{:.4f}'.format(float(output[-1][0]) * scaling), sep="")
