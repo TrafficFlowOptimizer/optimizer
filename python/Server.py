@@ -52,7 +52,7 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         server.basic_optimizer.solve(idx, seconds_limit=time)
         server.improve_optimizer.solve(idx, seconds_limit=0)
 
-        with open(f'../minizinc/output/{idx}_b.json', 'r+') as f:
+        with open(f'../minizinc/output/{idx}_i.json', 'r+') as f:
             data = json.load(f)
 
         # for dict in data["results"]:
