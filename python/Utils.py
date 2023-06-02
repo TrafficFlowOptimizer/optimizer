@@ -1,4 +1,5 @@
 import json
+from warnings import warn
 
 
 def get_value_from_input(input_data_path: str, value_name: str):
@@ -54,24 +55,12 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
     file.close()
 
 
-def fill_data(input_data_path: str, data_path: str, scaling: int):
+def fill_data(input_data_path: str, data_path: str, variables: dict, scaling: int):
     """Fills MiniZinc data file with values from given json file"""
 
     try:
         f = open(input_data_path)
         json_data = json.load(f)
-        variables = {"time_units_in_minute": "int",
-                     "number_of_time_units": "int",
-                     "number_of_lights": "int",
-                     "lights_IDs": "array",
-                     "number_of_roads": "int",
-                     "number_of_connections": "int",
-                     "car_flow_per_min": "array",
-                     "roads_connections": "array2d",
-                     "lights_heavy_collisions": "array2d",
-                     "heavy_collisions_no": "int",
-                     "lights_light_collisions": "array2d",
-                     "light_collisions_no": "int"}
 
         for key in variables.keys():
             if key in json_data:
@@ -80,28 +69,28 @@ def fill_data(input_data_path: str, data_path: str, scaling: int):
                 else:
                     add_variable(data_path, key, json_data[key], variables[key])
             else:
-                raise Exception(key + " is missing in input json file")
+                warn(key + " is missing in input json file")
 
         f.close()
     except FileNotFoundError:
         print(f'{input_data_path} not found!')
 
 
-def show_data(idx: int):
+def show_data(idx: int, extension: str):
     """Shows content of the MiniZinc data file"""
-    file = open(f'../minizinc/data/{idx}.dzn', "r")
+    file = open(f'../minizinc/data/{idx}{extension}.dzn', "r")
     print(file.read())
     file.close()
 
 
-def show_raw_output(idx: int):
+def show_raw_output(idx: int, extension: str):
     """Shows solver's raw output"""
-    file = open(f'../minizinc/output/{idx}.txt', "r")
+    file = open(f'../minizinc/output/{idx}{extension}.txt', "r")
     print(file.read())
     file.close()
 
 
-def show_refactored_output(idx: int, scaling: int = 3):
+def show_refactored_output(idx: int, scaling: int = 1):
     """Shows refactored MinZinc output so it is easier to read"""
     output = get_output_lights(f'../minizinc/output/{idx}.txt')
     lights_types = get_value_from_input(f'../input_data/{idx}.json', "lights_type")

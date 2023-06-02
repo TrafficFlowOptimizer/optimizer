@@ -12,16 +12,16 @@ HOST, PORT = "localhost", 9091
 
 
 def clear(idx: int):
-    if os.path.exists(f'../minizinc/output/{idx}.*'):
-        os.remove(f'../minizinc/output/{idx}.*')
-    if os.path.exists(f'../minizinc/data/{idx}.dzn'):
-        os.remove(f'../minizinc/data/{idx}.dzn')
-    if os.path.exists(f'../input_data/{idx}.json'):
-        os.remove(f'../input_data/{idx}.json')
+    if os.path.exists(f'../minizinc/output/{idx}*.*'):
+        os.remove(f'../minizinc/output/{idx}*.*')
+    if os.path.exists(f'../minizinc/data/{idx}*.dzn'):
+        os.remove(f'../minizinc/data/{idx}*.dzn')
+    if os.path.exists(f'../input_data/{idx}*.json'):
+        os.remove(f'../input_data/{idx}*.json')
 
 
 def clear_all():
-    fileList = glob('../minizinc/output/[0-9]*.*')
+    fileList = glob('../minizinc/output/[0-9]*.json')
     fileList += glob('../minizinc/data/[0-9]*.dzn')
     fileList += glob('../input_data/[0-9]*.json')
     print(fileList)
@@ -40,10 +40,6 @@ def prepare_data(configuration: dict):
     return idx
 
 
-def solve(idx: int, time: int):
-    server.optimizer.solve(idx, seconds_limit=time)
-
-
 class SingleTCPHandler(socketserver.BaseRequestHandler):
     """One instance per connection.  Override handle(self) to customize action."""
 
@@ -53,18 +49,19 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         pprint(load)
 
         idx = prepare_data(configuration)
-        solve(idx, time)
+        server.basic_optimizer.solve(idx, seconds_limit=time)
+        server.improve_optimizer.solve(idx, seconds_limit=0)
 
-        with open(f'../minizinc/output/{idx}.json', 'r+') as f:
+        with open(f'../minizinc/output/{idx}_b.json', 'r+') as f:
             data = json.load(f)
 
-        for dict in data["results"]:
-            print("light id:", dict["lightId"], "; ", "flow:", dict["flow"])
-            print(dict["sequence"])
-            print("------------------")
+        # for dict in data["results"]:
+        #     print("light id:", dict["lightId"], "; ", "flow:", dict["flow"])
+        #     print(dict["sequence"])
+        #     print("------------------")
 
         self.request.send(bytes(json.dumps(data), 'UTF-8'))
-        clear(idx)
+        # clear(idx)
         self.request.close()
 
 
@@ -74,7 +71,8 @@ class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
     def __init__(self, server_address, RequestHandlerClass):
         socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
-        self.optimizer = Optimizer()
+        self.basic_optimizer = Optimizer("../minizinc/models/basic_optimizer.mzn", "_b")
+        self.improve_optimizer = Optimizer("../minizinc/models/improve_optimizer.mzn", "_i")
 
 
 clear_all()
