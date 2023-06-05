@@ -10,7 +10,6 @@ from Optimizer import Optimizer
 
 HOST, PORT = "localhost", 9091
 
-
 def clear(idx: int):
     if os.path.exists(f'../minizinc/output/{idx}*.*'):
         os.remove(f'../minizinc/output/{idx}*.*')

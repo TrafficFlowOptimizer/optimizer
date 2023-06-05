@@ -1,0 +1,9 @@
+services:
+  minizinc-python-server:
+    container_name: minizinc-python-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9091:9091"
+    restart: always
