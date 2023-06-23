@@ -60,7 +60,7 @@ class SingleTCPHandler(socketserver.BaseRequestHandler):
         #     print("------------------")
 
         self.request.send(bytes(json.dumps(data), 'UTF-8'))
-        # clear(idx)
+        clear(idx)
         self.request.close()
 
 

@@ -26,9 +26,6 @@ var Total_flow: total_flow = sum(L in Light, T in Time)(light_states[L, T]);
 array[Light, Time] of var 0..1: light_states;
 constraint forall(L in Light, T in Time)(light_states[L, T] >= results[L, T]);
 
-% breaking symmetry
-constraint light_states[2, 1] = 1;
-constraint light_states[2, number_of_time_units] = 0;
 
 
 % utility functions

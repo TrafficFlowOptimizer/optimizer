@@ -22,11 +22,12 @@ array[Connection] of int: car_flow_per_min;
 
 % variables
 var Flow: minimum_flow;
+var Flow: maximum_flow;
 array[Light, Time] of var 0..1: light_states;
 
 % breaking symmetry
-constraint light_states[2, 1] = 1;
-constraint light_states[2, number_of_time_units] = 0;
+constraint light_states[1, 1] = 1;
+constraint light_states[1, number_of_time_units] = 0;
 
 
 % utility functions
@@ -51,8 +52,13 @@ constraint forall(L in Light)(count(T in 1..number_of_time_units-1)(lights_chang
 
 % looking for highest flow from lowest flows (green arrow ignored)
 constraint forall(L in Light)(flow_normalized[L]>=minimum_flow);
+constraint forall(L in Light)(flow_normalized[L]<=maximum_flow);
+
+constraint maximum_flow-minimum_flow>=0;
+constraint maximum_flow-minimum_flow<=0.5;
 
 solve maximize minimum_flow;
+% solve maximize maximum_flow*minimum_flow;
 
 output ["{\"results\": ["] ++
         [join(", ", [ "[" ++ join(", ", [show(light_states[L, T]) | T in Time]) ++ "]" | L in Light])] ++ ["]}"]
