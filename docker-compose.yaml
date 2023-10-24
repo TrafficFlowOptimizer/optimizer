@@ -4,6 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    networks:
+      - tfo-net
     ports:
       - 9091:9091
     restart: always
+
+networks:
+  tfo-net:
+    external: true
