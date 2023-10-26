@@ -49,7 +49,7 @@ def process_request():
         with open(f'../minizinc/output/{idx}_i.json', 'r+') as f:
             data = json.load(f)
     except:
-        return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 200
+        return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
 
     return data, 200
 
