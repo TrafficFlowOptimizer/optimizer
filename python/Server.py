@@ -1,14 +1,16 @@
 import json
 import os
-import socketserver
-import sys
 from glob import glob
-from pprint import pprint
-from uuid import uuid4
+
+from flask import Flask, request
 
 from Optimizer import Optimizer
+from python.OptimizationRequest import OptimizationRequest
+
+app = Flask(__name__)
 
 HOST, PORT = "localhost", 9091
+
 
 def clear(idx: int):
     if os.path.exists(f'../minizinc/output/{idx}*.*'):
@@ -29,55 +31,28 @@ def clear_all():
             os.remove(filePath)
 
 
-def prepare_data(configuration: dict):
-    conf_string = json.dumps(configuration)
-    idx = uuid4().int >> (128 - 24)
-    while os.path.exists(f'../input_data/{idx}.json'):
-        idx = uuid4().int >> (128 - 24)
-    with open(f'../input_data/{idx}.json', 'w') as f:
-        f.write(conf_string)
-    return idx
+basic_optimizer = Optimizer("../minizinc/models/basic_optimizer.mzn", "_b")
+improve_optimizer = Optimizer("../minizinc/models/improve_optimizer.mzn", "_i")
 
 
-class SingleTCPHandler(socketserver.BaseRequestHandler):
-    """One instance per connection.  Override handle(self) to customize action."""
+@app.route('/optimization', methods=['POST'])
+def process_request():
+    print(request.get_json())
+    optimization_request = OptimizationRequest(request.get_json())
 
-    def handle(self):
-        load = json.loads(self.request.recv(4016).decode('utf-8'))
-        time, configuration = load["time"], load["configuration"]
-        pprint(load)
+    idx = optimization_request.save_to_json()
 
-        idx = prepare_data(configuration)
-        server.basic_optimizer.solve(idx, seconds_limit=time)
-        server.improve_optimizer.solve(idx, seconds_limit=0)
-
+    try:
+        basic_optimizer.solve(idx, seconds_limit=optimization_request.optimization_time)
+        improve_optimizer.solve(idx, seconds_limit=0)
+        # clear(idx)
         with open(f'../minizinc/output/{idx}_i.json', 'r+') as f:
             data = json.load(f)
+    except:
+        return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 200
 
-        # for dict in data["results"]:
-        #     print("light id:", dict["lightId"], "; ", "flow:", dict["flow"])
-        #     print(dict["sequence"])
-        #     print("------------------")
-
-        self.request.send(bytes(json.dumps(data), 'UTF-8'))
-        clear(idx)
-        self.request.close()
-
-
-class SimpleServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    daemon_threads = allow_reuse_address = True
-    allow_reuse_address = True
-
-    def __init__(self, server_address, RequestHandlerClass):
-        socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
-        self.basic_optimizer = Optimizer("../minizinc/models/basic_optimizer.mzn", "_b")
-        self.improve_optimizer = Optimizer("../minizinc/models/improve_optimizer.mzn", "_i")
+    return data, 200
 
 
 clear_all()
-server = SimpleServer((HOST, PORT), SingleTCPHandler)
-
-try:
-    server.serve_forever()
-except KeyboardInterrupt:
-    sys.exit(0)
+app.run(host=HOST, port=PORT)
