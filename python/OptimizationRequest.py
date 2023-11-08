@@ -1,10 +1,18 @@
 import json
-from uuid import uuid4
 import os
+from uuid import uuid4
+from warnings import warn
+
+from python.Utils import add_variable
 
 
 class OptimizationRequest:
-    def __init__(self, data=None):
+    def __init__(self, data=None, scaling=1):
+        self.idx = uuid4().int >> (128 - 24)
+        while os.path.exists(f'../minizinc/data/{self.idx}.dzn'):
+            self.idx = uuid4().int >> (128 - 24)
+        self.scaling = scaling
+
         self.lights_type = None
         self.number_of_time_units = None
         self.time_units_in_minute = None
@@ -18,6 +26,19 @@ class OptimizationRequest:
         self.light_collisions = None
         self.roads_count = None
         self.optimization_time = None
+
+        self.variables_type = {"time_units_in_minute": "int",
+                               "number_of_time_units": "int",
+                               "lights_count": "int",
+                               "roads_count": "int",
+                               "connections_count": "int",
+                               "car_flow_per_minute": "array",
+                               "roads_connections": "array2d",
+                               "heavy_collisions": "array2d",
+                               "heavy_collisions_count": "int",
+                               "light_collisions": "array2d",
+                               "light_collisions_count": "int"}
+
         if data is None:
             self.fill_fields()
         else:
@@ -66,13 +87,25 @@ class OptimizationRequest:
         self.number_of_time_units = number_of_time_units
         self.lights_type = lights_type
 
-    def toJSON(self):
+    def to_dict(self):
+        return self.__dict__
+
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
-    def save_to_json(self):
-        idx = uuid4().int >> (128 - 24)
-        while os.path.exists(f'../input_data/{idx}.json'):
-            idx = uuid4().int >> (128 - 24)
-        with open(f'../input_data/{idx}.json', 'w') as f:
-            f.write(self.toJSON())
-        return idx
+    def save_as_json(self):
+        with open(f'../input_data/{self.idx}.json', 'w') as f:
+            f.write(self.to_json())
+        return self.idx
+
+    def save_as_dzn(self):
+        as_json = self.to_dict()
+        for key in self.variables_type.keys():
+            if key in as_json:
+                if key == "number_of_time_units":
+                    add_variable(f'../minizinc/data/{self.idx}.dzn', key, int(as_json[key]) // self.scaling,
+                                 self.variables_type[key])
+                else:
+                    add_variable(f'../minizinc/data/{self.idx}.dzn', key, as_json[key], self.variables_type[key])
+            else:
+                warn(key + " is missing in OptimizationRequest")

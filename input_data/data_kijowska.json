@@ -1,10 +1,11 @@
 {
-  "time_units_in_minute": 60,
-  "number_of_time_units": 60,
-  "number_of_lights": 12,
-  "number_of_roads": 12,
-  "number_of_connections": 12,
-  "lights_type": [
+  "optimizationTime": 2,
+  "timeUnitsInMinute": 60,
+  "numberOfTimeUnits": 60,
+  "lightsCount": 12,
+  "roadsCount": 12,
+  "connectionsCount": 12,
+  "lightsType": [
     " < ",
     " O ",
     "-> ",
@@ -18,7 +19,7 @@
     " O ",
     "-> "
   ],
-  "roads_connections": [
+  "roadsConnections": [
     [
       2,
       10,
@@ -106,7 +107,7 @@
     "light",
     "light"
   ],
-  "lights_heavy_collisions": [
+  "heavyCollisions": [
     [
       1,
       4
@@ -204,8 +205,8 @@
       11
     ]
   ],
-  "heavy_collisions_no": 24,
-  "lights_light_collisions": [
+  "heavyCollisionsCount": 24,
+  "lightCollisions": [
     [
       2,
       6
@@ -223,8 +224,8 @@
       12
     ]
   ],
-  "light_collisions_no": 4,
-  "car_flow_per_min": [
+  "lightCollisionsCount": 4,
+  "carFlowPerMinute": [
     6,
     11,
     20,

@@ -1,9 +1,9 @@
 {
 "time_units_in_minute": 60, - liczba oznaczająca ile jednostek jest w minucie, na ten moment stała wartość = 60
 "number_of_time_units": 60, - liczba oznaczająca dla jak długiego interwału rozważamy optymalizacje (im więcej tym wykładniczo dłużej trwa)
-"number_of_lights": 12, - liczba ile jest różnych świateł (zielona strzałka i duże zielone z tego samego pasa to dwa różne światła) (niebieski kolor)
-"number_of_roads": 12, - liczba ile jest łącznie wjazdów i wyjazdów na skrzyżowaniu (zielony kolor)
-"number_of_connections": 12, - liczba ile jest połączeń na skrzyżowaniu (czerwony i pomarańczowy kolor)
+"lights_count": 12, - liczba ile jest różnych świateł (zielona strzałka i duże zielone z tego samego pasa to dwa różne światła) (niebieski kolor)
+"roads_count": 12, - liczba ile jest łącznie wjazdów i wyjazdów na skrzyżowaniu (zielony kolor)
+"connections_count": 12, - liczba ile jest połączeń na skrzyżowaniu (czerwony i pomarańczowy kolor)
 "lights_type": [ - tablica symboli kolejnych świateł, niewymagana do optymalizacji
 " < ",
 " O ",
@@ -92,7 +92,7 @@
 12
 ]
 ],
-"lights": [ - tablica długości "number_of_lights" - pokazuje które światła zapewniają bezkolizyjność
+"lights": [ - tablica długości "lights_count" - pokazuje które światła zapewniają bezkolizyjność
 "heavy",      (heavy - bezkolizyjne, light - kolizyjne), niewymagana do optymalizacji
 "light",
 "light",
@@ -106,7 +106,7 @@
 "light",
 "light"
 ],
-"lights_heavy_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
+"heavy_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
 [                             silnie (nie mogą być na raz zielone) [idx_światła_1, idx_światła_2]
 1,                            INDEKSOWANIE ZACZYNA SIE OD 1 (!!!!!!)
 4
@@ -204,8 +204,8 @@
 11
 ]
 ],
-"heavy_collisions_no": 24, - długość powyższej tablicy
-"lights_light_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
+"heavy_collisions_count": 24, - długość powyższej tablicy
+"light_collisions": [ - tablica długości opisanej poniżej o polach opisujących które światła ze soba kolidują
 [                             słabo (mogą być na raz zielone, ale mogą generować kolizje) [idx_światła_1, idx_światła_2]
 [                             INDEKSOWANIE ZACZYNA SIE OD 1 (!!!!!!)
 2,
@@ -224,8 +224,8 @@
 12
 ]
 ],
-"light_collisions_no": 4, - długość powyższej tablicy
-"car_flow_per_min": [ - tablica długości "number_of_connections", określa jak wiele pojazdów pojawia się na minute
+"light_collisions_count": 4, - długość powyższej tablicy
+"car_flow_per_minute": [ - tablica długości "connections_count", określa jak wiele pojazdów pojawia się na minute
 6,                      chcących jechać przez dane połączenie (jeśli '6' jest na pierwszym miejscu w tablicy
 11,                     to pierwsze połączenie z tablicy połączeń ma obłożenie 6 pojazdów/minute)
 20,

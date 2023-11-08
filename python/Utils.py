@@ -1,6 +1,8 @@
 import json
 from warnings import warn
 
+from minizinc import Result
+
 
 def get_value_from_input(input_data_path: str, value_name: str):
     """Returns given data from input json file"""
@@ -90,25 +92,33 @@ def show_raw_output(idx: int, extension: str):
     file.close()
 
 
-def show_refactored_output(idx: int, scaling: int = 1):
-    """Shows refactored MinZinc output so it is easier to read"""
-    output = get_output_lights(f'../minizinc/output/{idx}.txt')
-    lights_types = get_value_from_input(f'../input_data/{idx}.json', "lights_type")
-    car_flow_per_min = get_value_from_input(f'../input_data/{idx}.json', "car_flow_per_min")
+def parse_solver_result(result: Result, scaling: int):
+    parsed_result = {}
+    for light_id, light_seq in enumerate(json.loads(str(result))["results"]):
+        extended_light_seq = []
+        for light in light_seq:
+            for _ in range(scaling):
+                extended_light_seq.append(light)
+        parsed_result[light_id] = extended_light_seq
+    return parsed_result
 
-    for light in range(1, len(output[0])):
-        print("ID: ", '{:0>2}'.format(light - 1), ";", lights_types[light - 1], sep="", end=";")
-        for time in range(len(output) - 2):
-            if output[time][light] == "1":
-                # if (light - 1) % 3 == 2 and output[time][light - 1] != "1":
-                #     print(">" * scaling, end="")
-                # else:
-                print("O" * scaling, end="")
-            elif output[time][light] == "0":
-                print("_" * scaling, end="")
+
+def show_refactored_output(optimization_request):
+    """Shows refactored MinZinc output so it is easier to read"""
+    with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
+        result = json.load(f)
+
+    lights_types = optimization_request.lights_type
+    car_flow_per_minute = optimization_request.car_flow_per_minute
+
+    for light_id, light_seq in result.items():
+        print("ID: ", '{:0>2}'.format(int(light_id)), ";", lights_types[int(light_id)], sep="", end=";")
+        for light in light_seq:
+            if light == 1:
+                print("O", end="")
+            elif light == 0:
+                print("_", end="")
             else:
-                print("*" * scaling, end="")
+                print("*", end="")
         print(end=";")
-        print("car flow: ", '{:0>2}'.format(car_flow_per_min[light - 1]), "/min", sep="", end="; ")
-        print("ratio: ", '{:.2f}'.format(float(output[-2][light - 1]) * scaling), sep="")
-    print("Minimum flow: ", '{:.4f}'.format(float(output[-1][0]) * scaling), sep="")
+        print("car flow: ", '{:0>2}'.format(car_flow_per_minute[int(light_id)]), "/min", sep="")

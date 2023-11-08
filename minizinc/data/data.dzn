@@ -1,9 +1,9 @@
 time_units_in_minute = 60;
 number_of_time_units = 30;
-number_of_lights = 12;
-number_of_roads = 12;
-number_of_connections = 12;
-car_flow_per_min = [6, 11, 20, 8, 11, 20, 6, 13, 18, 10, 10, 15];
+lights_count = 12;
+roads_count = 12;
+connections_count = 12;
+car_flow_per_minute = [6, 11, 20, 8, 11, 20, 6, 13, 18, 10, 10, 15];
 roads_connections = [| 2, 10, 1, -1, 
                      | 3, 6, 2, -1, 
                      | 3, 3, 2, 3, 
@@ -16,7 +16,7 @@ roads_connections = [| 2, 10, 1, -1,
                      | 11, 7, 10, -1, 
                      | 0, 3, 11, -1, 
                      | 0, 0, 11, 12 |];
-lights_heavy_collisions = [| 1, 4,
+heavy_collisions = [| 1, 4,
                           | 1, 5, 
                           | 1, 8, 
                           | 1, 9, 
@@ -40,9 +40,9 @@ lights_heavy_collisions = [| 1, 4,
                           | 7, 11, 
                           | 8, 10, 
                           | 8, 11 |];
-heavy_collisions_no = 24;
-lights_light_collisions = [| 2, 6,
+heavy_collisions_count = 24;
+light_collisions = [| 2, 6,
                           | 3, 11, 
                           | 5, 9, 
                           | 8, 12 |];
-light_collisions_no = 4;
+light_collisions_count = 4;

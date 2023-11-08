@@ -13,9 +13,9 @@ def update_json(json_path: str, name: str, value):
 def init_data(data_path: str = "../data_kijowska.json"):
     update_json(data_path, "time_units_in_minute", 60)
     update_json(data_path, "number_of_time_units", 60)
-    update_json(data_path, "number_of_lights", 12)
-    update_json(data_path, "number_of_roads", 12)
-    update_json(data_path, "number_of_connections", 12)
+    update_json(data_path, "lights_count", 12)
+    update_json(data_path, "roads_count", 12)
+    update_json(data_path, "connections_count", 12)
 
 
 def lights_kijowska(data_path: str = "../data_kijowska.json"):
@@ -30,25 +30,25 @@ def lights_kijowska(data_path: str = "../data_kijowska.json"):
 def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
-    number_of_lights = data["number_of_lights"]
-    number_of_roads = data["number_of_roads"]
-    number_of_connections = data["number_of_connections"]
+    lights_count = data["lights_count"]
+    roads_count = data["roads_count"]
+    connections_count = data["connections_count"]
     f.close()
 
     roads_connections = []
     for i in range(4):
-        roads_connections.append([(i * 3 + 1 + 1) % number_of_roads,
-                                  ((i * 3 + 1) + 8 + 1) % number_of_roads,
+        roads_connections.append([(i * 3 + 1 + 1) % roads_count,
+                                  ((i * 3 + 1) + 8 + 1) % roads_count,
                                   (i * 3) + 1, -1])
-        roads_connections.append([(i * 3 + 2 + 1) % number_of_roads,
-                                  ((i * 3 + 1) + 4 + 1) % number_of_roads,
+        roads_connections.append([(i * 3 + 2 + 1) % roads_count,
+                                  ((i * 3 + 1) + 4 + 1) % roads_count,
                                   (i * 3 + 1) + 1, -1])
-        roads_connections.append([(i * 3 + 2 + 1) % number_of_roads,
-                                  ((i * 3 + 1 + 1) + 1) % number_of_roads,
+        roads_connections.append([(i * 3 + 2 + 1) % roads_count,
+                                  ((i * 3 + 1 + 1) + 1) % roads_count,
                                   (i * 3 + 1) + 1, (i * 3 + 2) + 1])
 
     lights_type = []
-    for light in range(number_of_lights):
+    for light in range(lights_count):
         if light % 3 == 0:
             lights_type.append(" < ")
         elif light % 3 == 1:
@@ -63,70 +63,70 @@ def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
 def roads_collisions_kijowska(data_path: str = "../data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
-    number_of_lights = data["number_of_lights"]
-    number_of_roads = data["number_of_roads"]
+    lights_count = data["lights_count"]
+    roads_count = data["roads_count"]
     roads_connections = data["roads_connections"]
     lights = data["lights"]
     f.close()
 
-    lights_heavy_collisions = []
-    lights_light_collisions = []
-    for light_1 in range(number_of_lights):
-        for light_2 in range(light_1, number_of_lights):
+    heavy_collisions = []
+    light_collisions = []
+    for light_1 in range(lights_count):
+        for light_2 in range(light_1, lights_count):
             if light_1 % 3 == 0:
-                if light_2 == (light_1 + 3) % number_of_lights or \
-                        light_2 == (light_1 + 4) % number_of_lights or \
-                        light_2 == (light_1 + 7) % number_of_lights or \
-                        light_2 == (light_1 + 8) % number_of_lights or \
-                        light_2 == (light_1 + 9) % number_of_lights or \
-                        light_2 == (light_1 + 10) % number_of_lights:
+                if light_2 == (light_1 + 3) % lights_count or \
+                        light_2 == (light_1 + 4) % lights_count or \
+                        light_2 == (light_1 + 7) % lights_count or \
+                        light_2 == (light_1 + 8) % lights_count or \
+                        light_2 == (light_1 + 9) % lights_count or \
+                        light_2 == (light_1 + 10) % lights_count:
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy':
-                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
+                        heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
+                        light_collisions.append([light_1 + 1, light_2 + 1])
             if light_1 % 3 == 1:
-                if light_2 == (light_1 + 2) % number_of_lights or \
-                        light_2 == (light_1 + 3) % number_of_lights or \
-                        light_2 == (light_1 + 4) % number_of_lights or \
-                        light_2 == (light_1 + 5) % number_of_lights or \
-                        light_2 == (light_1 + 8) % number_of_lights or \
-                        light_2 == (light_1 + 9) % number_of_lights:
+                if light_2 == (light_1 + 2) % lights_count or \
+                        light_2 == (light_1 + 3) % lights_count or \
+                        light_2 == (light_1 + 4) % lights_count or \
+                        light_2 == (light_1 + 5) % lights_count or \
+                        light_2 == (light_1 + 8) % lights_count or \
+                        light_2 == (light_1 + 9) % lights_count:
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy' or \
-                            light_2 == (light_1 + 3) % number_of_lights or \
-                            light_2 == (light_1 + 9) % number_of_lights:
-                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
+                            light_2 == (light_1 + 3) % lights_count or \
+                            light_2 == (light_1 + 9) % lights_count:
+                        heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
+                        light_collisions.append([light_1 + 1, light_2 + 1])
             if light_1 % 3 == 2:
-                if light_2 == (light_1 + 4) % number_of_lights or \
-                        light_2 == (light_1 + 8) % number_of_lights:
+                if light_2 == (light_1 + 4) % lights_count or \
+                        light_2 == (light_1 + 8) % lights_count:
                     if lights[light_1] == 'heavy' or lights[light_2] == 'heavy':
-                        lights_heavy_collisions.append([light_1 + 1, light_2 + 1])
+                        heavy_collisions.append([light_1 + 1, light_2 + 1])
                     else:
-                        lights_light_collisions.append([light_1 + 1, light_2 + 1])
+                        light_collisions.append([light_1 + 1, light_2 + 1])
 
-    update_json(data_path, "lights_heavy_collisions", lights_heavy_collisions)
-    update_json(data_path, "heavy_collisions_no", len(lights_heavy_collisions))
-    update_json(data_path, "lights_light_collisions", lights_light_collisions)
-    update_json(data_path, "light_collisions_no", len(lights_light_collisions))
+    update_json(data_path, "heavy_collisions", heavy_collisions)
+    update_json(data_path, "heavy_collisions_count", len(heavy_collisions))
+    update_json(data_path, "light_collisions", light_collisions)
+    update_json(data_path, "light_collisions_count", len(light_collisions))
 
 
 def car_flow_kijowska(data_path: str = "../data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
-    number_of_connections = data["number_of_connections"]
+    connections_count = data["connections_count"]
     f.close()
 
-    car_flow_per_min = []
-    for in_light in range(number_of_connections):
+    car_flow_per_minute = []
+    for in_light in range(connections_count):
         if in_light % 3 == 0:
-            car_flow_per_min.append(random.randint(5, 10))
+            car_flow_per_minute.append(random.randint(5, 10))
         elif in_light % 3 == 1:
-            car_flow_per_min.append(random.randint(10, 15))
+            car_flow_per_minute.append(random.randint(10, 15))
         else:
-            car_flow_per_min.append(random.randint(15, 20))
+            car_flow_per_minute.append(random.randint(15, 20))
 
-    update_json(data_path, "car_flow_per_min", car_flow_per_min)
+    update_json(data_path, "car_flow_per_minute", car_flow_per_minute)
 
 
 init_data()
