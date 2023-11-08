@@ -18,7 +18,7 @@ set of int: Time = 1..number_of_time_units;
 set of float: Flow = 0.0..number_of_time_units;
 
 array[Connection, 1..4] of -1..infinity: roads_connections;
-array[Road, 1..max_connections_from_one_entrance] of 0..connections_count: connections;
+array[Road, 1..max_connections_from_one_entrance] of -1..connections_count: connections;
 array[Heavy_collisions_no, 1..2] of Light: heavy_collisions;
 array[Light_collisions_no, 1..2] of Light: light_collisions;
 array[Connection] of int: car_flow_per_minute;
@@ -45,7 +45,7 @@ constraint forall(C in Connection)(connection_on[C] = sum(T in Time)(if roads_co
                     then light_states[roads_connections[C, 3], T]
                     else light_states[roads_connections[C, 3], T] + light_states[roads_connections[C, 4], T] endif));
 constraint forall(T in Time, R in Road)(
-                    sum(C in 1..max_connections_from_one_entrance where connections[R, C] > 0)(connection_state[C, T])=1);
+                    sum(C in 1..max_connections_from_one_entrance where connections[R, C] > 0)(connection_state[C, T])<=1);
 
 
 array[Connection] of var Flow: flow_normalized = [connection_on[C]/car_flow_per_minute[C] | C in Connection];

@@ -1,27 +1,8 @@
 import json
-from warnings import warn
+import os
+from glob import glob
 
 from minizinc import Result
-
-
-def get_value_from_input(input_data_path: str, value_name: str):
-    """Returns given data from input json file"""
-    f = open(input_data_path)
-    json_data = json.load(f)
-    result = json_data[value_name]
-    f.close()
-    return result
-
-
-def get_output_lights(file_path: str):
-    """Returns lights sequence from solver output file"""
-    file = open(file_path, "r")
-    lines = file.readlines()
-    output = []
-    for line in lines:
-        output.append(line.split())
-    file.close()
-    return output
 
 
 def add_variable(file_name: str, variable_name: str, variable_value, variable_type: str):
@@ -50,45 +31,10 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
             value += str(v) + ", "
         value = value[:-2] + "}"
         file.write(str(variable_name) + " = " + value + ";\n")
-    # elif variable_type=="3darray":
-    #     file.write(str(variable_name) + " = " + str(variable_value) + ";\n")
+    elif variable_type == "3darray":
+        file.write(str(variable_name) + " = " + str(variable_value) + ";\n")
     else:
         raise ValueError("Invalid \"variable_type\" for " + str(variable_name) + ": " + str(variable_type))
-    file.close()
-
-
-def fill_data(input_data_path: str, data_path: str, variables: dict, scaling: int):
-    """Fills MiniZinc data file with values from given json file"""
-
-    try:
-        f = open(input_data_path)
-        json_data = json.load(f)
-
-        for key in variables.keys():
-            if key in json_data:
-                if key == "number_of_time_units":
-                    add_variable(data_path, key, json_data[key] // scaling, variables[key])
-                else:
-                    add_variable(data_path, key, json_data[key], variables[key])
-            else:
-                warn(key + " is missing in input json file")
-
-        f.close()
-    except FileNotFoundError:
-        print(f'{input_data_path} not found!')
-
-
-def show_data(idx: int, extension: str):
-    """Shows content of the MiniZinc data file"""
-    file = open(f'../minizinc/data/{idx}{extension}.dzn', "r")
-    print(file.read())
-    file.close()
-
-
-def show_raw_output(idx: int, extension: str):
-    """Shows solver's raw output"""
-    file = open(f'../minizinc/output/{idx}{extension}.txt', "r")
-    print(file.read())
     file.close()
 
 
@@ -122,3 +68,18 @@ def show_refactored_output(optimization_request):
                 print("*", end="")
         print(end=";")
         print("car flow: ", '{:0>2}'.format(car_flow_per_minute[int(light_id)]), "/min", sep="")
+
+
+def clear(idx: int = None):
+    if idx is None:
+        fileList = glob('../minizinc/output/[0-9]*.*')
+        fileList += glob('../minizinc/data/[0-9]*.dzn')
+        fileList += glob('../input_data/[0-9]*.json')
+    else:
+        fileList = glob(f'../minizinc/output/{idx}.*')
+        fileList += glob(f'../minizinc/data/{idx}.dzn')
+        fileList += glob(f'../input_data/{idx}.json')
+    print(fileList)
+    for filePath in fileList:
+        if os.path.exists(filePath):
+            os.remove(filePath)

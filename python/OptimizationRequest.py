@@ -26,6 +26,8 @@ class OptimizationRequest:
         self.light_collisions = None
         self.roads_count = None
         self.optimization_time = None
+        self.max_connections_from_one_entrance = None
+        self.connections = None
 
         self.variables_type = {"time_units_in_minute": "int",
                                "number_of_time_units": "int",
@@ -37,7 +39,9 @@ class OptimizationRequest:
                                "heavy_collisions": "array2d",
                                "heavy_collisions_count": "int",
                                "light_collisions": "array2d",
-                               "light_collisions_count": "int"}
+                               "light_collisions_count": "int",
+                               "max_connections_from_one_entrance": "int",
+                               "connections": "array2d"}
 
         if data is None:
             self.fill_fields()
@@ -55,13 +59,15 @@ class OptimizationRequest:
                 lights_count=data['lightsCount'],
                 time_units_in_minute=data['timeUnitsInMinute'],
                 number_of_time_units=data['numberOfTimeUnits'],
-                lights_type=data['lightsType']
+                lights_type=data['lightsType'],
+                max_connections_from_one_entrance=data['maxConnectionsFromOneEntrance'],
+                connections=data['connections']
             )
 
     def fill_fields(self, optimization_time=0, roads_count=0, light_collisions=None,
                     light_collisions_count=0, heavy_collisions=None, heavy_collisions_count=0,
                     roads_connections=None, connections_count=0, car_flow_per_minute=None,
-                    lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None):
+                    lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None, max_connections_from_one_entrance=0, connections=None):
         if light_collisions is None:
             light_collisions = []
         if heavy_collisions is None:
@@ -72,6 +78,8 @@ class OptimizationRequest:
             car_flow_per_minute = []
         if lights_type is None:
             lights_type = []
+        if connections is None:
+            connections = []
 
         self.optimization_time = optimization_time
         self.roads_count = roads_count
@@ -86,6 +94,8 @@ class OptimizationRequest:
         self.time_units_in_minute = time_units_in_minute
         self.number_of_time_units = number_of_time_units
         self.lights_type = lights_type
+        self.max_connections_from_one_entrance = max_connections_from_one_entrance
+        self.connections = connections
 
     def to_dict(self):
         return self.__dict__
