@@ -10,15 +10,13 @@ app = Flask(__name__)
 
 HOST, PORT = "localhost", 9091
 
-basic_optimizer = Optimizer("../minizinc/models/basic_optimizer_new.mzn")
-
-
 # improve_optimizer = Optimizer("../minizinc/models/improve_optimizer.mzn", "_i")
 
 
 @app.route('/optimization', methods=['POST'])
 def process_request():
-    optimization_request = OptimizationRequest(request.get_json(), 3)
+    basic_optimizer = Optimizer("../minizinc/models/basic_optimizer_new.mzn")
+    optimization_request = OptimizationRequest(request.get_json())
     optimization_request.save_as_dzn()
 
     try:

@@ -7,11 +7,11 @@ from python.Utils import add_variable
 
 
 class OptimizationRequest:
-    def __init__(self, data=None, scaling=1):
+    def __init__(self, data=None):
         self.idx = uuid4().int >> (128 - 24)
         while os.path.exists(f'../minizinc/data/{self.idx}.dzn'):
             self.idx = uuid4().int >> (128 - 24)
-        self.scaling = scaling
+        self.scaling = None
 
         self.lights_type = None
         self.number_of_time_units = None
@@ -61,13 +61,14 @@ class OptimizationRequest:
                 number_of_time_units=data['numberOfTimeUnits'],
                 lights_type=data['lightsType'],
                 max_connections_from_one_entrance=data['maxConnectionsFromOneEntrance'],
-                connections=data['connections']
-            )
+                connections=data['connections'],
+                scaling=data['scaling'])
 
     def fill_fields(self, optimization_time=0, roads_count=0, light_collisions=None,
                     light_collisions_count=0, heavy_collisions=None, heavy_collisions_count=0,
                     roads_connections=None, connections_count=0, car_flow_per_minute=None,
-                    lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None, max_connections_from_one_entrance=0, connections=None):
+                    lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None,
+                    max_connections_from_one_entrance=0, connections=None, scaling=0):
         if light_collisions is None:
             light_collisions = []
         if heavy_collisions is None:
@@ -96,6 +97,7 @@ class OptimizationRequest:
         self.lights_type = lights_type
         self.max_connections_from_one_entrance = max_connections_from_one_entrance
         self.connections = connections
+        self.scaling = scaling
 
     def to_dict(self):
         return self.__dict__

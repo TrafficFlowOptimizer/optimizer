@@ -40,12 +40,17 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
 
 def parse_solver_result(result: Result, scaling: int):
     parsed_result = {}
-    for light_id, light_seq in enumerate(json.loads(str(result))["results"]):
+    result_json = json.loads(str(result))
+    lights = {}
+    for light_id, light_seq in enumerate(result_json["results"]):
         extended_light_seq = []
         for light in light_seq:
             for _ in range(scaling):
                 extended_light_seq.append(light)
-        parsed_result[light_id] = extended_light_seq
+        lights[light_id+1] = extended_light_seq
+    parsed_result["lights_sequences"] = lights
+    parsed_result["car_flows_current"] = [flow*scaling for flow in result_json["car_flows_current"]]
+    parsed_result["car_flows_expected"] = result_json["car_flows_expected"]
     return parsed_result
 
 
@@ -55,10 +60,9 @@ def show_refactored_output(optimization_request):
         result = json.load(f)
 
     lights_types = optimization_request.lights_type
-    car_flow_per_minute = optimization_request.car_flow_per_minute
 
-    for light_id, light_seq in result.items():
-        print("ID: ", '{:0>2}'.format(int(light_id)), ";", lights_types[int(light_id)], sep="", end=";")
+    for light_id, light_seq in result["lights_sequences"].items():
+        print("LightID: ", '{:0>2}'.format(int(light_id)), ";", lights_types[int(light_id)-1], sep="", end=";")
         for light in light_seq:
             if light == 1:
                 print("O", end="")
@@ -66,9 +70,16 @@ def show_refactored_output(optimization_request):
                 print("_", end="")
             else:
                 print("*", end="")
-        print(end=";")
-        print("car flow: ", '{:0>2}'.format(car_flow_per_minute[int(light_id)]), "/min", sep="")
-
+        print()
+    print("Current/expected flow per minute:")
+    average_ratio = 0
+    for connection_id in range(len(result["car_flows_expected"])):
+        average_ratio += result["car_flows_current"][connection_id]/result["car_flows_expected"][connection_id]
+        print("Connection: ", '{:0>2}'.format(int(connection_id)+1), "; ",
+              '{:.2f}'.format(result["car_flows_current"][connection_id]/result["car_flows_expected"][connection_id]),
+              f' ({result["car_flows_current"][connection_id]} / {result["car_flows_expected"][connection_id]})', sep="")
+    average_ratio /= len(result["car_flows_expected"])
+    print("Average ratio:", '{:.2f}'.format(average_ratio))
 
 def clear(idx: int = None):
     if idx is None:
@@ -79,7 +90,6 @@ def clear(idx: int = None):
         fileList = glob(f'../minizinc/output/{idx}.*')
         fileList += glob(f'../minizinc/data/{idx}.dzn')
         fileList += glob(f'../input_data/{idx}.json')
-    print(fileList)
     for filePath in fileList:
         if os.path.exists(filePath):
             os.remove(filePath)

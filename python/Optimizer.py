@@ -14,6 +14,7 @@ class Optimizer:
 
     def solve(self, optimization_request: OptimizationRequest, solver: str):
         """Solves problem and saves output in file on given path"""
+        print(optimization_request.scaling)
         minizinc_data_path = f'../minizinc/data/{optimization_request.idx}.dzn'
         result_path = f'../minizinc/output/{optimization_request.idx}.json'
 
