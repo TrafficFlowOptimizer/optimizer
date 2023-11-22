@@ -4,7 +4,7 @@ lights_count = 12;
 roads_count = 12;
 connections_count = 12;
 car_flow_per_minute = [6, 11, 20, 8, 11, 20, 6, 13, 18, 10, 10, 15];
-roads_connections = [| 2, 10, 1, -1, 
+roads_connections_lights = [| 2, 10, 1, -1,
                      | 3, 6, 2, -1, 
                      | 3, 3, 2, 3, 
                      | 5, 1, 4, -1, 

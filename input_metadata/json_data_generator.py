@@ -27,7 +27,7 @@ def lights_kijowska(data_path: str = "../data_kijowska.json"):
     update_json(data_path, "lights", lights)
 
 
-def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
+def roads_connections_lights_kijowska(data_path: str = "../data_kijowska.json"):
     f = open(data_path)
     data = json.load(f)
     lights_count = data["lights_count"]
@@ -35,15 +35,15 @@ def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
     connections_count = data["connections_count"]
     f.close()
 
-    roads_connections = []
+    roads_connections_lights = []
     for i in range(4):
-        roads_connections.append([(i * 3 + 1 + 1) % roads_count,
+        roads_connections_lights.append([(i * 3 + 1 + 1) % roads_count,
                                   ((i * 3 + 1) + 8 + 1) % roads_count,
                                   (i * 3) + 1, -1])
-        roads_connections.append([(i * 3 + 2 + 1) % roads_count,
+        roads_connections_lights.append([(i * 3 + 2 + 1) % roads_count,
                                   ((i * 3 + 1) + 4 + 1) % roads_count,
                                   (i * 3 + 1) + 1, -1])
-        roads_connections.append([(i * 3 + 2 + 1) % roads_count,
+        roads_connections_lights.append([(i * 3 + 2 + 1) % roads_count,
                                   ((i * 3 + 1 + 1) + 1) % roads_count,
                                   (i * 3 + 1) + 1, (i * 3 + 2) + 1])
 
@@ -57,7 +57,7 @@ def roads_connections_kijowska(data_path: str = "../data_kijowska.json"):
             lights_type.append("-> ")
 
     update_json(data_path, "lights_type", lights_type)
-    update_json(data_path, "roads_connections", roads_connections)
+    update_json(data_path, "roads_connections_lights", roads_connections_lights)
 
 
 def roads_collisions_kijowska(data_path: str = "../data_kijowska.json"):
@@ -65,7 +65,7 @@ def roads_collisions_kijowska(data_path: str = "../data_kijowska.json"):
     data = json.load(f)
     lights_count = data["lights_count"]
     roads_count = data["roads_count"]
-    roads_connections = data["roads_connections"]
+    roads_connections_lights = data["roads_connections_lights"]
     lights = data["lights"]
     f.close()
 
@@ -130,7 +130,7 @@ def car_flow_kijowska(data_path: str = "../data_kijowska.json"):
 
 
 init_data()
-roads_connections_kijowska()
+roads_connections_lights_kijowska()
 lights_kijowska()
 roads_collisions_kijowska()
 car_flow_kijowska()

@@ -19,7 +19,7 @@ class OptimizationRequest:
         self.lights_count = None
         self.car_flow_per_minute = None
         self.connections_count = None
-        self.roads_connections = None
+        self.roads_connections_lights = None
         self.heavy_collisions_count = None
         self.heavy_collisions = None
         self.light_collisions_count = None
@@ -35,7 +35,7 @@ class OptimizationRequest:
                                "roads_count": "int",
                                "connections_count": "int",
                                "car_flow_per_minute": "array",
-                               "roads_connections": "array2d",
+                               "roads_connections_lights": "array2d",
                                "heavy_collisions": "array2d",
                                "heavy_collisions_count": "int",
                                "light_collisions": "array2d",
@@ -46,6 +46,7 @@ class OptimizationRequest:
         if data is None:
             self.fill_fields()
         else:
+            print(data)
             self.fill_fields(
                 optimization_time=data['optimizationTime'],
                 roads_count=data['roadsCount'],
@@ -53,7 +54,7 @@ class OptimizationRequest:
                 light_collisions_count=data['lightCollisionsCount'],
                 heavy_collisions=data['heavyCollisions'],
                 heavy_collisions_count=data['heavyCollisionsCount'],
-                roads_connections=data['roadsConnections'],
+                roads_connections_lights=data['roadsConnectionsLights'],
                 connections_count=data['connectionsCount'],
                 car_flow_per_minute=data['carFlowPerMinute'],
                 lights_count=data['lightsCount'],
@@ -66,15 +67,15 @@ class OptimizationRequest:
 
     def fill_fields(self, optimization_time=0, roads_count=0, light_collisions=None,
                     light_collisions_count=0, heavy_collisions=None, heavy_collisions_count=0,
-                    roads_connections=None, connections_count=0, car_flow_per_minute=None,
+                    roads_connections_lights=None, connections_count=0, car_flow_per_minute=None,
                     lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None,
                     max_connections_from_one_entrance=0, connections=None, scaling=0):
         if light_collisions is None:
             light_collisions = []
         if heavy_collisions is None:
             heavy_collisions = []
-        if roads_connections is None:
-            roads_connections = []
+        if roads_connections_lights is None:
+            roads_connections_lights = []
         if car_flow_per_minute is None:
             car_flow_per_minute = []
         if lights_type is None:
@@ -88,7 +89,7 @@ class OptimizationRequest:
         self.light_collisions_count = light_collisions_count
         self.heavy_collisions = heavy_collisions
         self.heavy_collisions_count = heavy_collisions_count
-        self.roads_connections = roads_connections
+        self.roads_connections_lights = roads_connections_lights
         self.connections_count = connections_count
         self.car_flow_per_minute = car_flow_per_minute
         self.lights_count = lights_count

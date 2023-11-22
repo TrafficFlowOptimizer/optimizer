@@ -18,7 +18,7 @@
 " O ",
 "-> "
 ],
-"roads_connections": [ - tablica czteroelementowych segmentów opisujących połączenia, każdy segment to kolejno
+"roads_connections_lights": [ - tablica czteroelementowych segmentów opisujących połączenia, każdy segment to kolejno
 [                        [index_wjazdu, index_wyjazdu, index_światła_1_pozwalającego_na_przejazd, index_światła_2_pozwalającego_na_przejazd]
 2,				         pierwsze dwa pola są z zielonych, drugie dra z niebieskich. INDEKSOWANIE ZACZYNA SIE OD 1 (!!!!!!)
 10,

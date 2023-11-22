@@ -15,7 +15,7 @@ set of int: Light_collisions_no = 1..light_collisions_count;
 set of int: Time = 1..number_of_time_units;
 set of int: Total_flow = 0..number_of_time_units*lights_count;
 
-array[Connection, 1..4] of -1..infinity: roads_connections;
+array[Connection, 1..4] of -1..infinity: roads_connections_lights;
 array[Heavy_collisions_no, 1..2] of Light: heavy_collisions;
 array[Light_collisions_no, 1..2] of Light: light_collisions;
 array[Connection] of int: car_flow_per_minute;
@@ -30,16 +30,16 @@ constraint forall(L in Light, T in Time)(light_states[L, T] >= results[L, T]);
 
 % utility functions
 array[Connection] of var 0..number_of_time_units: light_on;
-constraint forall(C in Connection)(light_on[C] = sum(T in Time)(if roads_connections[C, 4]= -1 
-                    then light_states[roads_connections[C, 3], T]
-                    else max(light_states[roads_connections[C, 3], T], light_states[roads_connections[C, 4], T]) endif));
+constraint forall(C in Connection)(light_on[C] = sum(T in Time)(if roads_connections_lights[C, 4]= -1
+                    then light_states[roads_connections_lights[C, 3], T]
+                    else max(light_states[roads_connections_lights[C, 3], T], light_states[roads_connections_lights[C, 4], T]) endif));
 
 
 array[Light, 1..number_of_time_units-1] of var -1..1: lights_change;
 constraint forall(L in Light, T in 1..number_of_time_units-1)(lights_change[L, T] = light_states[L, T]-light_states[L, T+1]);
 
-constraint forall(C in Connection where roads_connections[C, 4]!=-1, T in Time)
-                              (light_states[roads_connections[C, 3], T] + light_states[roads_connections[C, 4], T]<2);
+constraint forall(C in Connection where roads_connections_lights[C, 4]!=-1, T in Time)
+                              (light_states[roads_connections_lights[C, 3], T] + light_states[roads_connections_lights[C, 4], T]<2);
 % there are no colision on crossing with green light_states
 constraint forall(C in Heavy_collisions_no, T in Time)(light_states[heavy_collisions[C, 1], T]+light_states[heavy_collisions[C, 2], T]<2);
 % there is only one period of light_states on (green arrow ignored)

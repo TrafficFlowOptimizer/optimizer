@@ -10,7 +10,6 @@ app = Flask(__name__)
 
 HOST, PORT = "localhost", 9091
 
-# improve_optimizer = Optimizer("../minizinc/models/improve_optimizer.mzn", "_i")
 
 
 @app.route('/optimization', methods=['POST'])
@@ -22,18 +21,18 @@ def process_request():
     try:
         basic_optimizer.solve(optimization_request, "cbc")
         # improve_optimizer.solve(idx, seconds_limit=0)
-        # clear(idx)
         with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
             data = json.load(f)
+        clear(optimization_request.idx)
     except Exception as error:
         print(error)
         return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
-
-    show_refactored_output(optimization_request)
-
+    # print(data)
+    # show_refactored_output(optimization_request)
     return data, 200
 
 
-clear()
 # serve(app, host=HOST, port=PORT)
-app.run(host=HOST, port=PORT)
+if __name__ == "__main__":
+    clear()
+    app.run(host=HOST, port=PORT)
