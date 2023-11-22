@@ -7,10 +7,12 @@ int: connections_count;
 int: heavy_collisions_count;
 int: light_collisions_count;
 int: max_connections_from_one_entrance;
+int: intermediates_count;
 
 set of int: Light = 1..lights_count;
 set of int: Connection = 1..connections_count;
 set of int: Road = 1..roads_count;
+set of int: Intermediate = 1..intermediates_count;
 set of int: Heavy_collisions_no = 1..heavy_collisions_count;
 set of int: Light_collisions_no = 1..light_collisions_count;
 
@@ -19,6 +21,7 @@ set of float: Flow = 0.0..number_of_time_units;
 
 array[Connection, 1..4] of -1..infinity: roads_connections_lights;
 array[Road, 1..max_connections_from_one_entrance] of -1..connections_count: connections;
+array[Intermediate, 1..2] of 0..infinity: intermediates_capacities;
 array[Heavy_collisions_no, 1..2] of Light: heavy_collisions;
 array[Light_collisions_no, 1..2] of Light: light_collisions;
 array[Connection] of float: car_flow_per_minute;
@@ -26,6 +29,7 @@ array[Connection] of float: car_flow_per_minute;
 % variables
 var Flow: minimum_flow;
 var Flow: maximum_flow;
+var Flow: average_flow;
 array[Light, Time] of var 0..1: light_states;
 array[Connection, Time] of var 0..1: connection_state;
 
@@ -63,13 +67,20 @@ constraint forall(C in Heavy_collisions_no, T in Time)(light_states[heavy_collis
 constraint forall(L in Light)(count(T in Time)(lights_change[L, T]!=0)=2);
 
 % looking for highest flow from lowest flows (green arrow ignored)
-constraint forall(L in Light)(flow_normalized[L]>=minimum_flow);
-constraint forall(L in Light)(flow_normalized[L]<=maximum_flow);
+% constraint forall(C in Connection)(flow_normalized[C]>=minimum_flow);
+% constraint forall(C in Connection)(flow_normalized[C]<=maximum_flow);
+constraint maximum_flow = max(flow_normalized);
+constraint average_flow = sum(C in Connection)(flow_normalized[C])/connections_count;
+constraint minimum_flow = min(flow_normalized);
 
 constraint maximum_flow-minimum_flow>=0;
 % constraint maximum_flow-minimum_flow<=0.5;
 
-solve maximize minimum_flow;
+var float: alpha = maximum_flow-minimum_flow;
+var float: score = average_flow+minimum_flow-5*alpha;
+
+solve maximize score;
+% solve maximize minimum_flow;
 % solve maximize maximum_flow*minimum_flow;
 
 output ["{\"results\": ["] ++

@@ -20,6 +20,7 @@ def process_request():
 
     try:
         basic_optimizer.solve(optimization_request, "cbc")
+        show_refactored_output(optimization_request)
         # improve_optimizer.solve(idx, seconds_limit=0)
         with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
             data = json.load(f)
@@ -28,7 +29,6 @@ def process_request():
         print(error)
         return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
     # print(data)
-    # show_refactored_output(optimization_request)
     return data, 200
 
 

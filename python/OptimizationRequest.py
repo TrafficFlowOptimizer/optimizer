@@ -28,6 +28,8 @@ class OptimizationRequest:
         self.optimization_time = None
         self.max_connections_from_one_entrance = None
         self.connections = None
+        self.intermediates_capacities = None
+        self.intermediates_count = None
 
         self.variables_type = {"time_units_in_minute": "int",
                                "number_of_time_units": "int",
@@ -41,7 +43,9 @@ class OptimizationRequest:
                                "light_collisions": "array2d",
                                "light_collisions_count": "int",
                                "max_connections_from_one_entrance": "int",
-                               "connections": "array2d"}
+                               "connections": "array2d",
+                               "intermediates_capacities": "array2d",
+                               "intermediates_count": "int"}
 
         if data is None:
             self.fill_fields()
@@ -63,26 +67,16 @@ class OptimizationRequest:
                 lights_type=data['lightsType'],
                 max_connections_from_one_entrance=data['maxConnectionsFromOneEntrance'],
                 connections=data['connections'],
+                intermediates_capacities=data['intermediatesCapacities'],
+                intermediates_count=data['intermediatesCount'],
                 scaling=data['scaling'])
 
     def fill_fields(self, optimization_time=0, roads_count=0, light_collisions=None,
                     light_collisions_count=0, heavy_collisions=None, heavy_collisions_count=0,
                     roads_connections_lights=None, connections_count=0, car_flow_per_minute=None,
                     lights_count=0, time_units_in_minute=0, number_of_time_units=0, lights_type=None,
-                    max_connections_from_one_entrance=0, connections=None, scaling=0):
-        if light_collisions is None:
-            light_collisions = []
-        if heavy_collisions is None:
-            heavy_collisions = []
-        if roads_connections_lights is None:
-            roads_connections_lights = []
-        if car_flow_per_minute is None:
-            car_flow_per_minute = []
-        if lights_type is None:
-            lights_type = []
-        if connections is None:
-            connections = []
-
+                    max_connections_from_one_entrance=0, connections=None, intermediates_capacities=None,
+                    intermediates_count=0, scaling=0):
         self.optimization_time = optimization_time
         self.roads_count = roads_count
         self.light_collisions = light_collisions
@@ -98,6 +92,8 @@ class OptimizationRequest:
         self.lights_type = lights_type
         self.max_connections_from_one_entrance = max_connections_from_one_entrance
         self.connections = connections
+        self.intermediates_capacities = intermediates_capacities
+        self.intermediates_count = intermediates_count
         self.scaling = scaling
 
     def to_dict(self):
