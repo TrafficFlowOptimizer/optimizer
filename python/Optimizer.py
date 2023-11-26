@@ -3,8 +3,8 @@ from datetime import timedelta
 
 from minizinc import Instance, Model, Solver
 
-from python.OptimizationRequest import OptimizationRequest
-from python.Utils import parse_solver_result
+from OptimizationRequest import OptimizationRequest
+from Utils import parse_solver_result
 
 
 class Optimizer:

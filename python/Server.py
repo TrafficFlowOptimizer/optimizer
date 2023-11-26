@@ -3,8 +3,8 @@ import json
 from flask import Flask, request
 
 from Optimizer import Optimizer
-from python.OptimizationRequest import OptimizationRequest
-from python.Utils import show_refactored_output, clear
+from OptimizationRequest import OptimizationRequest
+from Utils import show_refactored_output, clear
 
 app = Flask(__name__)
 
