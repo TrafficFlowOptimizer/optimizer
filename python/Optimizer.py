@@ -3,8 +3,8 @@ from datetime import timedelta
 
 from minizinc import Instance, Model, Solver
 
-from python.OptimizationRequest import OptimizationRequest
-from python.Utils import parse_solver_result
+from OptimizationRequest import OptimizationRequest
+from Utils import parse_solver_result
 
 
 class Optimizer:
@@ -18,7 +18,7 @@ class Optimizer:
         result_path = f'../minizinc/output/{optimization_request.idx}.json'
 
         self.model.add_file(minizinc_data_path)
-        instance = Instance(Solver.lookup(solver), self.model)
+        instance = Instance(Solver.lookup(solver, refresh=True), self.model)
 
         result = instance.solve(timeout=timedelta(seconds=optimization_request.optimization_time), optimisation_level=2)
         result = parse_solver_result(result, optimization_request.scaling)

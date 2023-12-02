@@ -3,7 +3,7 @@ import os
 from uuid import uuid4
 from warnings import warn
 
-from python.Utils import add_variable
+from Utils import add_variable
 
 
 class OptimizationRequest:

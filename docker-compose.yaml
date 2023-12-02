@@ -4,6 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - SPRING_HOST=localhost
+      # - SPRING_HOST=java-spring-server
+      - SPRING_PORT=8080
+      - OT_HOST=localhost
+      - OT_PORT=9091
+      - SOLVER=gecode
     networks:
       - tfo-net
     ports:
