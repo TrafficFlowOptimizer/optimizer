@@ -73,7 +73,7 @@ constraint maximum_flow = max(flow_normalized);
 constraint average_flow = sum(C in Connection)(flow_normalized[C])/connections_count;
 constraint minimum_flow = min(flow_normalized);
 
-constraint maximum_flow-minimum_flow>=0;
+% constraint maximum_flow-minimum_flow>=0;
 % constraint maximum_flow-minimum_flow<=0.5;
 
 var float: alpha = maximum_flow-minimum_flow;

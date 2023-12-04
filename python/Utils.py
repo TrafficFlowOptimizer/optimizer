@@ -2,8 +2,6 @@ import json
 import os
 from glob import glob
 
-from minizinc import Result
-
 
 def add_variable(file_name: str, variable_name: str, variable_value, variable_type: str):
     """Adds variable\n
@@ -41,20 +39,15 @@ def add_variable(file_name: str, variable_name: str, variable_value, variable_ty
     file.close()
 
 
-def parse_solver_result(result: Result, scaling: int):
-    parsed_result = {}
-    result_json = json.loads(str(result))
-    lights = {}
-    for light_id, light_seq in enumerate(result_json["results"]):
+def parse_solver_result(result: list[list[int]], scaling: int):
+    extended_lights = []
+    for light_seq in result:
         extended_light_seq = []
         for light in light_seq:
             for _ in range(scaling):
                 extended_light_seq.append(light)
-        lights[light_id + 1] = extended_light_seq
-    parsed_result["lights_sequences"] = lights
-    # parsed_result["car_flows_current"] = [flow*scaling for flow in result_json["car_flows_current"]]
-    # parsed_result["car_flows_expected"] = result_json["car_flows_expected"]
-    return parsed_result
+        extended_lights.append(extended_light_seq)
+    return extended_lights
 
 
 def show_refactored_output(optimization_request):
@@ -62,7 +55,7 @@ def show_refactored_output(optimization_request):
     with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
         result = json.load(f)
 
-    lights_types = optimization_request.lights_type
+    lights_types = optimization_request.lights_types
 
     for light_id, light_seq in result["lights_sequences"].items():
         print("LightID: ", '{:0>2}'.format(int(light_id)), ";", lights_types[int(light_id) - 1], sep="", end=";")

@@ -19,6 +19,7 @@ set of int: Collision = 1..collision_count;
 array[Road] of 0..infinity: road_capacities;
 
 array[Connection] of int: expected_car_flow;
+array[Connection] of int: is_connection_from_intermediate;
 array[Connection, 1..3] of Light_: connection_lights;
 
 array[Collision] of 0..1: is_collision_important;
@@ -35,26 +36,64 @@ array[Light, Time] of var 0..1: is_light_on;
 
 % whether the connection is passable
 array[Connection, Time] of var 0..1: is_connection_on;
+constraint forall(T in Time, C in Connection)(
+        sum(L in [connection_lights[C, L] | L in 1..3 where connection_lights[C, L]>0])(is_light_on[L, T])<2
+        );
 constraint forall(T in Time, C in Connection)(is_connection_on[C, T] = (
-        sum(L in [connection_lights[C, L] | L in 1..3 where connection_lights[C, L]>0])(is_light_on[L, T])>0
+        sum(L in [connection_lights[C, L] | L in 1..3 where connection_lights[C, L]>0])(is_light_on[L, T])
         ));
 
 % what is the summarized passable connection time
-array[Connection] of var Time: connection_on;
+array[Connection] of var 0..time_unit_count: connection_on;
 constraint forall(C in Connection)(connection_on[C] = sum(T in Time)(is_connection_on[C, T]));
 
 % counters of connections flows
 set of float: Flow = 0.0..time_unit_count;
-array[Connection] of var Flow: flow_normalized = [connection_on[C]/expected_car_flow[C] | C in Connection];
-var Flow: maximum_flow = max(flow_normalized);
-var Flow: average_flow = sum(C in Connection)(flow_normalized[C])/connection_count;
-var Flow: minimum_flow = min(flow_normalized);
+array[Connection] of var Flow: flow_normalized_no_intermediate;
+constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_no_intermediate[C] = connection_on[C]/expected_car_flow[C]);
+constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_no_intermediate[C] = 0);
+
+array[Connection] of var Flow: flow_normalized_intermediate;
+constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_intermediate[C] = 0);
+constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_intermediate[C] = connection_on[C]/expected_car_flow[C]);
+
+var Flow: maximum_flow_no_intermediate = max(flow_normalized_no_intermediate);
+var Flow: average_flow_no_intermediate = sum(C in Connection)(flow_normalized_no_intermediate[C])/connection_count;
+var Flow: minimum_flow_no_intermediate = min(flow_normalized_no_intermediate);
+
+var Flow: maximum_flow_intermediate = max(flow_normalized_intermediate);
+var Flow: average_flow_intermediate = sum(C in Connection)(flow_normalized_intermediate[C])/connection_count;
+var Flow: minimum_flow_intermediate = min(flow_normalized_intermediate);
 
 % make sure there is only one light_on sequence per light
 array[Light, Time] of var -1..1: lights_change;
 constraint forall(L in Light, T in 1..time_unit_count-1)(lights_change[L, T] = is_light_on[L, T]-is_light_on[L, T+1]);
 constraint forall(L in Light)(lights_change[L, time_unit_count] = is_light_on[L, time_unit_count]-is_light_on[L, 1]);
-constraint forall(L in Light)(count(T in Time)(lights_change[L, T]!=0)=2);
+constraint forall(L in Light)(count(T in Time)(lights_change[L, T]!=0)<=2);
+
+
+% make sure there are no 1_unit_long light_on periods
+
+% constraint forall(L in Light)
+%                     (lights_change[L, time_unit_count] != -1*lights_change[L, 1]);
+% constraint forall(L in Light, T in 1..time_unit_count-1)
+%                     (lights_change[L, T] != -1*lights_change[L, T+1]);
+                        
+% constraint forall(L in Light)
+%                     (is_light_on[L, time_unit_count-1]*is_light_on[L, time_unit_count] <= is_light_on[L, time_unit_count-2]+is_light_on[L, 1]);                
+% constraint forall(L in Light)
+%                     (is_light_on[L, time_unit_count]*is_light_on[L, 1] <= is_light_on[L, time_unit_count-1]+is_light_on[L, 2]);
+% constraint forall(L in Light)
+%                     (is_light_on[L, 1]*is_light_on[L, 2] <= is_light_on[L, time_unit_count]+is_light_on[L, 3]);
+% constraint forall(L in Light, T in 2..time_unit_count-2)
+%                     (is_light_on[L, T]*is_light_on[L, T+1] <= is_light_on[L, T-1]+is_light_on[L, T+2]);
+                    
+constraint forall(L in Light)
+                    (is_light_on[L, time_unit_count] <= is_light_on[L, time_unit_count-1]+is_light_on[L, 1]);
+constraint forall(L in Light)
+                    (is_light_on[L, 1] <= is_light_on[L, time_unit_count]+is_light_on[L, 2]);
+constraint forall(L in Light, T in 2..time_unit_count-1)
+                    (is_light_on[L, T] <= is_light_on[L, T-1]+is_light_on[L, T+1]);
 
 % whether intermediate has entrance/exit car in given moment of time
 predicate has_entrance(var Road: R, var Time: T) = (road_connections_in[R, 1]!=0 /\ is_connection_on[road_connections_in[R, 1], T]==1) \/
@@ -70,20 +109,28 @@ constraint forall(R in Road where road_capacities[R] == 0, T in Time)(road_filli
 constraint forall(R in Road where road_capacities[R] > 0, T in Time)(road_filling_state[R, T]=has_entrance(R, T)-has_exit(R, T));
 constraint forall(R in Road where road_capacities[R] > 0)(sum(T in Time)(road_filling_state[R, T])<=0);
 
-array[Road, Timex2] of var -1..1: road_filling_state_extended;
-constraint forall(R in Road where road_capacities[R] > 0, T in Time)
-                  (road_filling_state_extended[R, T] = road_filling_state[R, T]);
-constraint forall(R in Road where road_capacities[R] > 0, T in Time)
-                  (road_filling_state_extended[R, T+time_unit_count] = road_filling_state[R, T]);
+% array[Road, Timex2] of var -1..1: road_filling_state_extended;
+% constraint forall(R in Road where road_capacities[R] > 0, T in Time)
+%                   (road_filling_state_extended[R, T] = road_filling_state[R, T]);
+% constraint forall(R in Road where road_capacities[R] > 0, T in Time)
+%                   (road_filling_state_extended[R, T+time_unit_count] = road_filling_state[R, T]);
                   
 % how many cars are currently waiting
-array[Road, Timex2] of var 0..infinity: waiting_cars_counter_extended;
+array[Road, Time] of var 0..time_unit_count: waiting_cars_counter;
 constraint forall(R in Road where road_capacities[R] > 0)
-                  (waiting_cars_counter_extended[R, 1] = road_filling_state[R, 1]);
-constraint forall(R in Road where road_capacities[R] > 0, T in 2..time_unit_count*2)
-                  (waiting_cars_counter_extended[R, T] = max(0, waiting_cars_counter_extended[R, T-1]+road_filling_state_extended[R, T]));
+                    (waiting_cars_counter[R, 1] = road_filling_state[R, 1]);
+constraint forall(R in Road where road_capacities[R] > 0, T in 2..time_unit_count)
+                    (waiting_cars_counter[R, T] = waiting_cars_counter[R, T-1] + road_filling_state[R, T]);
 constraint forall(R in Road where road_capacities[R] > 0)
-                  (max([waiting_cars_counter_extended[R, T] | T in Timex2])<=road_capacities[R]);
+                  (max([waiting_cars_counter[R, T] | T in Time])<=road_capacities[R]);
+
+% array[Road, Timex2] of var 0..time_unit_count*2: waiting_cars_counter_extended;
+% constraint forall(R in Road where road_capacities[R] > 0)
+%                   (waiting_cars_counter_extended[R, 1] = road_filling_state_extended[R, 1]);
+% constraint forall(R in Road where road_capacities[R] > 0, T in 2..time_unit_count*2)
+%                   (waiting_cars_counter_extended[R, T] = max(0, waiting_cars_counter_extended[R, T-1]+road_filling_state_extended[R, T]));
+% constraint forall(R in Road where road_capacities[R] > 0)
+%                   (max([waiting_cars_counter_extended[R, T] | T in Timex2])<=road_capacities[R]);
 
 
 %%%%% Constraints
@@ -91,7 +138,7 @@ constraint forall(R in Road where road_capacities[R] > 0)
 
 % make sure there are no colissions
 constraint forall(C in Collision, T in Time)
-          (is_connection_on[collision_connections[C, 1], T]!=is_connection_on[collision_connections[C, 2], T]);
+          (is_connection_on[collision_connections[C, 1], T]+is_connection_on[collision_connections[C, 2], T]<2);
 
 % breaking symmetry
 constraint is_light_on[1, 1] = 1;
@@ -101,31 +148,47 @@ constraint is_light_on[1, time_unit_count] = 0;
 %%%%% Objective function
 
 
-var float: alpha = maximum_flow-minimum_flow;
-% var float: score = average_flow-alpha;
-var float: score = average_flow+minimum_flow-alpha;
+% var float: alpha = maximum_flow-minimum_flow;
+% % var float: score = average_flow+minimum_flow-5*alpha;
 
-solve maximize score;
+% var float: score = average_flow+minimum_flow*10;
+
+var float: variance = sum(C in Connection)(abs(flow_normalized_no_intermediate[C]-average_flow_no_intermediate))/connection_count;
+var float: score2 = sum(C in Connection)(flow_normalized_no_intermediate[C]-variance);
+solve maximize score2;
+
+% var float: score3 = sum(C in Connection)(flow_normalized[C]-average_flow);
+% solve maximize minimum_flow;
+
+% solve maximize minimum_flow;
+% solve satisfy;
+% solve maximize average_flow;
 
 
 %%%%% Print output
 
-
+% output ["{\"results\": ["] ++
+%         [join(", ", [ "[" ++ join(", ", [show(is_light_on[L, T]) | T in Time]) ++ "]" | L in Light])] ++ ["]," ++
+%         "\"car_flows_current\": ["] ++
+%         [join(", ", [show(connection_on[C]) | C in Connection])] ++ ["]," ++
+%         "\"car_flows_expected\": ["] ++
+%         [join(", ", [show(expected_car_flow[C]) | C in Connection])] ++ ["]}"]
+%         ++ [show(score)]
 output ["{\"is_light_on\": [\n"] ++
         [join(",\n", [ "[" ++ join(", ", [show(is_light_on[L, T]) | T in Time]) ++ "]"| L in Light])] ++ ["],"] ++
         ["\n\"is_connection_on\": [\n"] ++
         [join(",\n", [ "[" ++ join(", ", [show(is_connection_on[C, T]) | T in Time]) ++ "]"| C in Connection])] ++ ["],"] ++
         ["\n\"road_filling_state\": [\n"] ++
         [join(",\n", [ "[" ++ join(", ", [show(road_filling_state[R, T]) | T in Time]) ++ "]"| R in Road])] ++ ["],"] ++
-        ["\n\"road_filling_state_extended\": [\n"] ++
-        [join(",\n", [ "[" ++ join(", ", [show(road_filling_state_extended[R, T]) | T in Timex2]) ++ "]"| R in Road])] ++ ["],"] ++
-        ["\n\"waiting_cars_counter_extended\": [\n"] ++
-        [join(",\n", [ "[" ++ join(", ", [show(waiting_cars_counter_extended[R, T]) | T in Timex2]) ++ "]"| R in Road])] ++ ["],"] ++
+        ["\n\"waiting_cars_counter\": [\n"] ++
+        [join(",\n", [ "[" ++ join(", ", [show(waiting_cars_counter[R, T]) | T in Time]) ++ "]"| R in Road])] ++ ["],"] ++
         ["\n\"connection_on_time\": [\n"] ++
         [join(",\n", [ show(connection_on[C]) | C in Connection])] ++ ["]"] ++
         ["\n\"expected_car_flow\": [\n"] ++
         [join(",\n", [ show(expected_car_flow[C]) | C in Connection])] ++ ["]"] ++
-        ["\n\"flow_normalized\": [\n"] ++
-        [join(",\n", [ show(flow_normalized[C]) | C in Connection])] ++ ["]"] ++
-        ["\n\"score\": " ++ show(score)] ++
+        ["\n\"flow_normalized_no_intermediate\": [\n"] ++
+        [join(",\n", [ show(flow_normalized_no_intermediate[C]) | C in Connection])] ++ ["]"] ++
+        ["\n\"flow_normalized_intermediate\": [\n"] ++
+        [join(",\n", [ show(flow_normalized_intermediate[C]) | C in Connection])] ++ ["]"] ++
+        ["\n\"score\": " ++ show(score2)] ++
         ["}"]

@@ -56,7 +56,7 @@ def roads_connections_lights_kijowska(data_path: str = "../data_kijowska.json"):
         else:
             lights_type.append("-> ")
 
-    update_json(data_path, "lights_type", lights_type)
+    update_json(data_path, "lights_types", lights_type)
     update_json(data_path, "roads_connections_lights", roads_connections_lights)
 
 

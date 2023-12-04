@@ -18,7 +18,8 @@ Każde Colission może być CBTOOTSM albo nie
 consts
 	Liczba Lights
 	Liczba Roads
-		Tablica 1D zawierająca int (0 jeśli Entrance/Exit, liczba jeśli Intermediate)
+		Tablica 2D zawierająca int (które connection wjezdzaja)
+		Tablica 2D zawierająca int (które connection wyjezdzaja)
 	Liczba Connections
 		Tablica 2D zawierająca listę Lights (istotnych dla danego Connection)
 		Tablica 1D zawierająca float (wartośc CarFlow dla danego Connection)
