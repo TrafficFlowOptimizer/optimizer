@@ -1,4 +1,3 @@
-import json
 from datetime import timedelta
 
 from minizinc import Instance, Model, Solver
@@ -20,7 +19,11 @@ class Optimizer:
         self.model.add_file(minizinc_data_path)
         instance = Instance(Solver.lookup(solver, refresh=True), self.model)
 
-        result = instance.solve(timeout=timedelta(seconds=optimization_request.optimization_time), optimisation_level=2)
-        result = parse_solver_result(result, optimization_request.scaling)
-        with open(result_path, 'w', encoding="utf-8") as output_txt:
-            output_txt.write(json.dumps(result))
+        result = instance.solve(timeout=timedelta(seconds=optimization_request.optimization_time),
+                                optimisation_level=2, intermediate_solutions=True)
+
+        if len(result) == 0:
+            return None
+        print(result.solution[-1].is_light_on)
+        print(result.solution[-1].is_light_on[0])
+        return parse_solver_result(result.solution[-1].is_light_on, optimization_request.scaling)
