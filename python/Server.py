@@ -6,6 +6,7 @@ from flask import Flask, request
 
 from OptimizationRequest import OptimizationRequest
 from Optimizer import Optimizer
+from Utils import clear
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def process_request():
         # improve_optimizer.solve(idx, seconds_limit=0)
         # with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
         #     data = json.load(f)
-        # clear(optimization_request.idx)
+        clear(optimization_request.idx)
     except Exception as error:
         print(error)
         return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
@@ -50,5 +51,5 @@ def process_request():
 
 # serve(app, host=HOST, port=PORT)
 if __name__ == "__main__":
-    # clear()
+    clear()
     app.run(host="0.0.0.0", port=PORT)
