@@ -1,11 +1,11 @@
 import json
-
-from flask import Flask, request
-from dotenv import load_dotenv
 import os
-from Optimizer import Optimizer
+
+from dotenv import load_dotenv
+from flask import Flask, request
+
 from OptimizationRequest import OptimizationRequest
-from Utils import show_refactored_output, clear
+from Optimizer import Optimizer
 
 app = Flask(__name__)
 

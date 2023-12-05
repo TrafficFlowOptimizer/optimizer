@@ -1,4 +1,3 @@
-import json
 from datetime import timedelta
 
 from minizinc import Instance, Model, Solver
