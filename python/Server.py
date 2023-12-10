@@ -29,9 +29,11 @@ def hi():
 
 @app.route('/optimization', methods=['POST'])
 def process_request():
-    basic_optimizer = Optimizer("../minizinc/models/basic_optimizer_newer.mzn")
+    basic_optimizer = Optimizer("../minizinc/models/basic_optimizer_newer.mzn",
+                                "../minizinc/models/basic_optimizer_newer_for_comparison.mzn")
     optimization_request = OptimizationRequest(request.get_json())
-    optimization_request.save_as_dzn()
+    optimization_request.save_as_dzn(True)
+    optimization_request.save_as_dzn(False)
 
     try:
         data = basic_optimizer.solve(optimization_request, SOLVER)

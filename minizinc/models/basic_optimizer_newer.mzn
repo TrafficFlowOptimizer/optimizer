@@ -43,27 +43,19 @@ constraint forall(T in Time, C in Connection)(is_connection_on[C, T] = (
         sum(L in [connection_lights[C, L] | L in 1..3 where connection_lights[C, L]>0])(is_light_on[L, T])
         ));
 
+% how much connection is open for cars (what are the chances it will be chosen)
+
+array[Connection, Time] of var 0..4: how_much_connection_on;
+constraint forall(T in Time, C in Connection where is_connection_on[C, T]=1)(how_much_connection_on[C, T] = 
+        4 - sum(L in [connection_lights[C, L] | L in 1..3])(if L>0 then is_light_on[L, T] else 0 endif)
+        );
+        
+constraint forall(T in Time, C in Connection where is_connection_on[C, T]=0)(how_much_connection_on[C, T] = 0);
+
 % what is the summarized passable connection time
-array[Connection] of var 0..time_unit_count: connection_on;
-constraint forall(C in Connection)(connection_on[C] = sum(T in Time)(is_connection_on[C, T]));
+array[Connection] of var 0..time_unit_count*4: connection_on;
+constraint forall(C in Connection)(connection_on[C] = sum(T in Time)(how_much_connection_on[C, T]));
 
-% counters of connections flows
-set of float: Flow = 0.0..time_unit_count;
-array[Connection] of var Flow: flow_normalized_no_intermediate;
-constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_no_intermediate[C] = connection_on[C]/expected_car_flow[C]);
-constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_no_intermediate[C] = 0);
-
-array[Connection] of var Flow: flow_normalized_intermediate;
-constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_intermediate[C] = 0);
-constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_intermediate[C] = connection_on[C]/expected_car_flow[C]);
-
-var Flow: maximum_flow_no_intermediate = max(flow_normalized_no_intermediate);
-var Flow: average_flow_no_intermediate = sum(C in Connection)(flow_normalized_no_intermediate[C])/connection_count;
-var Flow: minimum_flow_no_intermediate = min(flow_normalized_no_intermediate);
-
-var Flow: maximum_flow_intermediate = max(flow_normalized_intermediate);
-var Flow: average_flow_intermediate = sum(C in Connection)(flow_normalized_intermediate[C])/connection_count;
-var Flow: minimum_flow_intermediate = min(flow_normalized_intermediate);
 
 % make sure there is only one light_on sequence per light
 array[Light, Time] of var -1..1: lights_change;
@@ -147,15 +139,34 @@ constraint is_light_on[1, time_unit_count] = 0;
 
 %%%%% Objective function
 
+% counters of connections flows
+set of float: Flow = 0.0..time_unit_count*4;
+array[Connection] of var Flow: flow_normalized_no_intermediate;
+constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_no_intermediate[C] = connection_on[C]/expected_car_flow[C]);
+constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_no_intermediate[C] = 0);
+
+array[Connection] of var Flow: flow_normalized_intermediate;
+constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_intermediate[C] = 0);
+constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_intermediate[C] = connection_on[C]/expected_car_flow[C]);
+
+var Flow: maximum_flow_no_intermediate = max(flow_normalized_no_intermediate);
+var Flow: average_flow_no_intermediate = sum(C in Connection)(flow_normalized_no_intermediate[C])/connection_count;
+var Flow: minimum_flow_no_intermediate = min(flow_normalized_no_intermediate);
+
+var Flow: maximum_flow_intermediate = max(flow_normalized_intermediate);
+var Flow: average_flow_intermediate = sum(C in Connection)(flow_normalized_intermediate[C])/connection_count;
+var Flow: minimum_flow_intermediate = min(flow_normalized_intermediate);
 
 % var float: alpha = maximum_flow-minimum_flow;
 % % var float: score = average_flow+minimum_flow-5*alpha;
 
 % var float: score = average_flow+minimum_flow*10;
 
-var float: variance = sum(C in Connection)(abs(flow_normalized_no_intermediate[C]-average_flow_no_intermediate))/connection_count;
-var float: score2 = sum(C in Connection)(flow_normalized_no_intermediate[C]-variance);
-solve maximize score2;
+var float: variance = sum(C in Connection)
+      (abs(flow_normalized_no_intermediate[C]-average_flow_no_intermediate))/connection_count;
+var float: score = sum(C in Connection)
+      (flow_normalized_no_intermediate[C]-variance);
+solve maximize score;
 
 % var float: score3 = sum(C in Connection)(flow_normalized[C]-average_flow);
 % solve maximize minimum_flow;
@@ -190,5 +201,5 @@ output ["{\"is_light_on\": [\n"] ++
         [join(",\n", [ show(flow_normalized_no_intermediate[C]) | C in Connection])] ++ ["]"] ++
         ["\n\"flow_normalized_intermediate\": [\n"] ++
         [join(",\n", [ show(flow_normalized_intermediate[C]) | C in Connection])] ++ ["]"] ++
-        ["\n\"score\": " ++ show(score2)] ++
+        ["\n\"score\": " ++ show(score)] ++
         ["}"]

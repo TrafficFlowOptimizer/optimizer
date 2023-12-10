@@ -85,7 +85,7 @@ def clear(idx: int = None):
             fileList += glob('../minizinc/data/[0-9]*.dzn')
         else:
             fileList = glob(f'../minizinc/output/{idx}.*')
-            fileList += glob(f'../minizinc/data/{idx}.dzn')
+            fileList += glob(f'../minizinc/data/{idx}*.dzn')
         for filePath in fileList:
             if os.path.exists(filePath):
                 os.remove(filePath)

@@ -31,6 +31,9 @@ class OptimizationRequest:
         self.collision_connections = None
         self.is_connection_from_intermediate = None
 
+        self.previous_results = None
+
+
         self.variables_type = {
             "time_units_in_minute": "int",
             "time_unit_count": "int",
@@ -69,14 +72,15 @@ class OptimizationRequest:
                 is_connection_from_intermediate=data['isConnectionFromIntermediate'],
                 scaling=data['scaling'],
                 optimization_time=data['optimizationTime'],
-                lights_type=data['lightsTypes']
+                lights_type=data['lightsTypes'],
+                previous_results=data['previousResults']
             )
 
     def fill_fields(self, time_units_in_minute=0, time_unit_count=0, light_count=0, road_count=0,
                     connection_count=0, collision_count=0, road_capacities=None, expected_car_flow=None,
                     connection_lights=None, road_connections_in=None, road_connections_out=None,
                     is_collision_important=None, collision_connections=None, is_connection_from_intermediate=None,
-                    scaling=0, optimization_time=0, lights_type=None):
+                    scaling=0, optimization_time=0, lights_type=None, previous_results=None):
         self.time_units_in_minute = time_units_in_minute
         self.time_unit_count = time_unit_count
         self.light_count = light_count
@@ -97,6 +101,8 @@ class OptimizationRequest:
         self.optimization_time = optimization_time
         self.lights_types = lights_type
 
+        self.previous_results = previous_results
+
     def to_dict(self):
         return self.__dict__
 
@@ -108,14 +114,22 @@ class OptimizationRequest:
             f.write(self.to_json())
         return self.idx
 
-    def save_as_dzn(self):
+    def save_as_dzn(self, for_comparison: bool):
         as_json = self.to_dict()
+        suffix = ""
+        if for_comparison:
+            if self.previous_results is None:
+                return
+            suffix = "_for_comparison"
         for key in self.variables_type.keys():
             if key in as_json:
-                if key == "time_unit_count":
-                    add_variable(f'../minizinc/data/{self.idx}.dzn', key, int(as_json[key]) // self.scaling,
+                if key == "time_unit_count" and not for_comparison:
+                    add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', key, int(as_json[key]) // self.scaling,
                                  self.variables_type[key])
                 else:
-                    add_variable(f'../minizinc/data/{self.idx}.dzn', key, as_json[key], self.variables_type[key])
+                    add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', key, as_json[key], self.variables_type[key])
             else:
                 warn(key + " is missing in OptimizationRequest")
+        if for_comparison:
+            add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', "previous_results", self.previous_results, "array2d")
+
