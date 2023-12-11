@@ -10,6 +10,7 @@ services:
       - SPRING_PORT=8080
       - OT_HOST=localhost
       - OT_PORT=9091
+      - PASSWORD=4321
       - SOLVER=gecode
     networks:
       - tfo-net
