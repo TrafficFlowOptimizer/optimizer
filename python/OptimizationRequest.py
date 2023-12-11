@@ -33,7 +33,6 @@ class OptimizationRequest:
 
         self.previous_results = None
 
-
         self.variables_type = {
             "time_units_in_minute": "int",
             "time_unit_count": "int",
@@ -127,9 +126,10 @@ class OptimizationRequest:
                     add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', key, int(as_json[key]) // self.scaling,
                                  self.variables_type[key])
                 else:
-                    add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', key, as_json[key], self.variables_type[key])
+                    add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', key, as_json[key],
+                                 self.variables_type[key])
             else:
                 warn(key + " is missing in OptimizationRequest")
         if for_comparison:
-            add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', "previous_results", self.previous_results, "array2d")
-
+            add_variable(f'../minizinc/data/{self.idx}{suffix}.dzn', "previous_results", self.previous_results,
+                         "array2d")

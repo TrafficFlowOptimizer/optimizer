@@ -37,21 +37,16 @@ def process_request():
 
     try:
         data = basic_optimizer.solve(optimization_request, SOLVER)
-        # show_refactored_output(optimization_request)
-        # improve_optimizer.solve(idx, seconds_limit=0)
-        # with open(f'../minizinc/output/{optimization_request.idx}.json', 'r+') as f:
-        #     data = json.load(f)
         clear(optimization_request.idx)
     except Exception as error:
         print(error)
         return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
     print(data)
-    if data == None:
-        return json.dumps({"error_message": "There are no optimization results for given time"}), 515
+    if data is None:
+        return json.dumps({"error_message": "There are no optimization results for given time"}), 422
     return data, 200
 
 
-# serve(app, host=HOST, port=PORT)
 if __name__ == "__main__":
     clear()
     app.run(host="0.0.0.0", port=PORT)

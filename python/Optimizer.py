@@ -24,15 +24,13 @@ class Optimizer:
                                 optimisation_level=2, intermediate_solutions=True)
 
         previous_objective = self.calculate_previous_objective(optimization_request, solver)
+        current_objective = result.objective
 
         if len(result) == 0:
             return None
-        if previous_objective > result.objective:
+        if previous_objective > current_objective:
             return optimization_request.previous_results
-        print(result.solution[-1].is_light_on)
-        print(result.solution[-1].is_light_on[0])
-        print(result.statistics["solveTime"])
-        print(result.objective)
+
         return parse_solver_result(result.solution[-1].is_light_on, optimization_request.scaling)
 
     def calculate_previous_objective(self, optimization_request: OptimizationRequest, solver: str):
@@ -44,5 +42,4 @@ class Optimizer:
         instance = Instance(Solver.lookup(solver, refresh=True), self.model_for_comparison)
 
         result = instance.solve(optimisation_level=2)
-        print(result.objective)
         return result.objective / optimization_request.scaling
