@@ -1,14 +1,14 @@
-import json
 import os
 
+import uvicorn
 from dotenv import load_dotenv
-from flask import Flask, request
+from fastapi import FastAPI
+from fastapi import Request
+from fastapi.responses import JSONResponse
 
-from OptimizationRequest import OptimizationRequest
+from OptimizationRequest import OptimizationRequest, OptimizationRequestModel
 from Optimizer import Optimizer
 from Utils import clear
-
-app = Flask(__name__)
 
 load_dotenv("../.env")
 
@@ -17,36 +17,52 @@ SERVER_HOST = os.getenv('SPRING_HOST')
 SERVER_PORT = os.getenv('SPRING_PORT')
 SERVER = "http://" + SERVER_HOST + ":" + SERVER_PORT + "/"
 
+PASSWORD = os.getenv('PASSWORD')
+PASSWORD_CODE = 'password'
+
 # OT setup
 HOST, PORT = os.getenv('OT_HOST'), int(os.getenv('OT_PORT'))
 SOLVER = os.getenv('SOLVER')
 
-
-@app.route('/', methods=['GET'])
-def hi():
-    return "OK", 200
+app = FastAPI()
 
 
-@app.route('/optimization', methods=['POST'])
-def process_request():
-    basic_optimizer = Optimizer("../minizinc/models/basic_optimizer_newer.mzn",
-                                "../minizinc/models/basic_optimizer_newer_for_comparison.mzn")
-    optimization_request = OptimizationRequest(request.get_json())
-    optimization_request.save_as_dzn(True)
-    optimization_request.save_as_dzn(False)
+@app.get("/")
+def read_root():
+    return {"message": "Hello, FastAPI!"}
 
+
+@app.post('/optimization')
+def process_request(request: Request, optimization_request: OptimizationRequestModel):
     try:
+        basic_optimizer = Optimizer(
+            "../minizinc/models/basic_optimizer_newer.mzn",
+            "../minizinc/models/basic_optimizer_newer_for_comparison.mzn"
+        )
+        optimization_request = OptimizationRequest(optimization_request.optimization_request)
+
+        optimization_request.save_as_dzn(True)
+        optimization_request.save_as_dzn(False)
+
         data = basic_optimizer.solve(optimization_request, SOLVER)
         clear(optimization_request.idx)
     except Exception as error:
         print(error)
-        return json.dumps({"error_message": "Error occurred during optimization. Possibly invalid data."}), 500
+        return JSONResponse(
+            content={"error_message": "Error occurred during optimization. Possibly invalid data."},
+            status_code=500
+        )
+
     print(data)
     if data is None:
-        return json.dumps({"error_message": "There are no optimization results for given time"}), 422
-    return data, 200
+        return JSONResponse(
+            content={"error_message": "There are no optimization results for the given time"},
+            status_code=422
+        )
+
+    return JSONResponse(content=data, status_code=200)
 
 
 if __name__ == "__main__":
     clear()
-    app.run(host="0.0.0.0", port=PORT)
+    uvicorn.run("Server:app", port=PORT, host="0.0.0.0", reload=True)

@@ -3,7 +3,13 @@ import os
 from uuid import uuid4
 from warnings import warn
 
+from pydantic import BaseModel
+
 from Utils import add_variable
+
+
+class OptimizationRequestModel(BaseModel):
+    optimization_request: dict
 
 
 class OptimizationRequest:
