@@ -2,7 +2,7 @@ import os
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -27,8 +27,23 @@ SOLVER = os.getenv('SOLVER')
 app = FastAPI()
 
 
+async def check_allowed_source(request: Request):
+    if request.query_params.get(PASSWORD_CODE) != PASSWORD:
+        raise HTTPException(status_code=403, detail="Forbidden: Source not allowed")
+
+
+@app.middleware("http")
+async def validate_source(request: Request, call_next):
+    try:
+        await check_allowed_source(request)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
+    response = await call_next(request)
+    return response
+
+
 @app.get("/")
-def read_root():
+def home():
     return {"message": "Hello, FastAPI!"}
 
 
@@ -45,7 +60,7 @@ def process_request(request: Request, optimization_request: OptimizationRequestM
         optimization_request.save_as_dzn(False)
 
         data = basic_optimizer.solve(optimization_request, SOLVER)
-        clear(optimization_request.idx)
+        # clear(optimization_request.idx)
     except Exception as error:
         print(error)
         return JSONResponse(
@@ -64,5 +79,5 @@ def process_request(request: Request, optimization_request: OptimizationRequestM
 
 
 if __name__ == "__main__":
-    clear()
+    # clear()
     uvicorn.run("Server:app", port=PORT, host="0.0.0.0", reload=True)
