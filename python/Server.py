@@ -60,7 +60,7 @@ def process_request(request: Request, optimization_request: OptimizationRequestM
         optimization_request.save_as_dzn(False)
 
         data = basic_optimizer.solve(optimization_request, SOLVER)
-        # clear(optimization_request.idx)
+        clear(optimization_request.idx)
     except Exception as error:
         print(error)
         return JSONResponse(
@@ -68,7 +68,6 @@ def process_request(request: Request, optimization_request: OptimizationRequestM
             status_code=500
         )
 
-    print(data)
     if data is None:
         return JSONResponse(
             content={"error_message": "There are no optimization results for the given time"},
@@ -79,5 +78,5 @@ def process_request(request: Request, optimization_request: OptimizationRequestM
 
 
 if __name__ == "__main__":
-    # clear()
+    clear()
     uvicorn.run("Server:app", port=PORT, host="0.0.0.0", reload=True)

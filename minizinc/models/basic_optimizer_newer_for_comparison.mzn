@@ -31,6 +31,7 @@ array[Road, 1..3] of Connection_: road_connections_out;
 
 array[Light, Time] of 0..1: previous_results;
 
+
 %%%%% Variables
 
 % whether the connection is passable
@@ -68,25 +69,15 @@ array[Connection] of var Flow: flow_normalized_intermediate;
 constraint forall(C in Connection where is_connection_from_intermediate[C]=0)(flow_normalized_intermediate[C] = 0);
 constraint forall(C in Connection where is_connection_from_intermediate[C]=1)(flow_normalized_intermediate[C] = connection_on[C]/expected_car_flow[C]);
 
-var Flow: maximum_flow_no_intermediate = max(flow_normalized_no_intermediate);
-var Flow: average_flow_no_intermediate = sum(C in Connection)(flow_normalized_no_intermediate[C])/connection_count;
 var Flow: minimum_flow_no_intermediate = min(flow_normalized_no_intermediate);
-
-var Flow: maximum_flow_intermediate = max(flow_normalized_intermediate);
-var Flow: average_flow_intermediate = sum(C in Connection)(flow_normalized_intermediate[C])/connection_count;
 var Flow: minimum_flow_intermediate = min(flow_normalized_intermediate);
 
-% var float: alpha = maximum_flow-minimum_flow;
-% % var float: score = average_flow+minimum_flow-5*alpha;
+var float: score = minimum_flow_no_intermediate+minimum_flow_intermediate;
 
-% var float: score = average_flow+minimum_flow*10;
-
-var float: variance = sum(C in Connection)
-      (abs(flow_normalized_no_intermediate[C]-average_flow_no_intermediate))/connection_count;
-var float: score = sum(C in Connection)
-      (flow_normalized_no_intermediate[C]-variance);
 solve maximize score;
 
+
+%%%%% Print output
 
 output ["{\"score\": " ++ show(score)] ++
         ["}"]
